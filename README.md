@@ -4,6 +4,11 @@
 
 deny-self-approve is a CLI to deny self-approved GitHub Pull Requests.
 
-## LICENSE
+This tool is useful to prevent unreviewed pull requests from being merged.
 
-[MIT](LICENSE)
+Even if you configure the branch rule set or branch protection rule properly, people can bypass the restriction.
+For instance, people can approve pull requests using GitHub Actions token, GitHub App, or Machine Users.
+And people can also push commits to pull requests created by others (other users, GitHub Actions token, GitHub App, or Machine Users) and approve them.
+
+To prevent this threat, this tool checks if a given pull request approvers and commiters.
+It can dismiss self-approvals, and it validates if the pull request is approved by someone other than committers.

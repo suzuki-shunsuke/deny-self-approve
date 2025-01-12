@@ -39,6 +39,12 @@ type LDFlags struct {
 	Date    string
 }
 
+// Run is the entrypoint of the CLI.
+// It reads parameters from command line arguments and environment variables.
+// It also reads parameters from the CI environment if it's running in a CI environment.
+// Environment variables:
+// - GITHUB_TOKEN: GitHub Access token
+// https://github.com/suzuki-shunsuke/go-ci-env/tree/main/cienv
 func (r *Runner) Run(ctx context.Context) error {
 	cli := &CLI{}
 	kong.Parse(cli)
@@ -64,8 +70,14 @@ func (r *Runner) Run(ctx context.Context) error {
 	return ctrl.Run(ctx, r.LogE, input)
 }
 
+// getParamFromEnv reads parameters from the environment variables and sets them to input.
+// - input.RepoOwner
+// - input.RepoName
+// - input.PR
 func (r *Runner) getParamFromEnv(cli *CLI, input *controller.Input) error {
 	if cli.Repo != "" {
+		// Read the repository full name from the command line argument --repo
+		// Split the repository full name into the owner and the repository name
 		o, n, ok := strings.Cut(cli.Repo, "/")
 		if !ok {
 			return fmt.Errorf("repo must be a repository full name like cli/cli: %s", cli.Repo)
@@ -76,6 +88,7 @@ func (r *Runner) getParamFromEnv(cli *CLI, input *controller.Input) error {
 	if input.RepoOwner != "" && input.PR != 0 {
 		return nil
 	}
+	// Read parameters from the CI environment
 	pt := cienv.Get(nil)
 	if pt == nil {
 		return nil

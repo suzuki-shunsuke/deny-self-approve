@@ -92,8 +92,9 @@ type ReviewsPullRequest struct {
 }
 
 type PullRequest struct {
-	Reviews *Reviews `graphql:"reviews(first:30)"`
-	Commits *Commits `graphql:"commits(first:30)"`
+	HeadRefOID string
+	Reviews    *Reviews `graphql:"reviews(first:30)"`
+	Commits    *Commits `graphql:"commits(first:30)"`
 }
 
 type Reviews struct {
@@ -110,8 +111,7 @@ type Review struct {
 }
 
 type ReviewCommit struct {
-	// id
-	// oid
+	OID string
 }
 
 type Commits struct {
