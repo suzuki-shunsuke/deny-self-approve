@@ -6,7 +6,7 @@
 It dismisses self-approvals and triggers a CI failure if no external approver — someone who did not push commits to the pull request — approves the changes.
 
 We assume it's run in CI.
-The following GitHub Repository Branch Rulesets is useful to protect branches like default branches:
+The following GitHub Repository Branch Rulesets are useful to protect branches like default branches:
 
 - `Require a pull request before merging`
 - `Require status checks to pass`
@@ -17,8 +17,9 @@ But even if you configure these rulesets properly, people can still bypass the r
 For instance, people can approve pull requests using GitHub Actions token, GitHub App, or Machine Users.
 And people can also push commits to pull requests created by others (other users, GitHub Actions token, GitHub App, or Machine Users) and approve them.
 
-To prevent this threat, this tool checks if a given pull request approvers and committers.
-It can dismiss self-approvals, and it validates if the pull request is approved by someone other than committers.
+To prevent this threat, this tool checks if a given pull request approvers and commiters.
+It can dismiss self-approvals.
+And it can also validate pull requests before doing something like deployment.
 
 ## How To Use
 
