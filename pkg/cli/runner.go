@@ -67,7 +67,7 @@ func (r *Runner) Run(ctx context.Context) error {
 	}
 	ctrl := &controller.Controller{}
 	ctrl.Init(afero.NewOsFs(), gh, r.Stdout, r.Stderr)
-	return ctrl.Run(ctx, r.LogE, input)
+	return ctrl.Run(ctx, r.LogE, input) //nolint:wrapcheck
 }
 
 // getParamFromEnv reads parameters from the environment variables and sets them to input.
@@ -102,7 +102,7 @@ func (r *Runner) getParamFromEnv(cli *CLI, input *controller.Input) error {
 	if input.PR <= 0 {
 		n, err := pt.PRNumber()
 		if err != nil {
-			return err
+			return fmt.Errorf("get a pull request number: %w", err)
 		}
 		input.PR = n
 	}
