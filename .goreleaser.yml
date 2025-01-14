@@ -62,7 +62,8 @@ brews:
     # Template of your app's description.
     # Default is empty.
     description: |
-      Rename Terraform resources and modules and generate moved blocks. You can rename blocks flexibly using Jsonnet.
+      Deny self-approved GitHub Pull Requests.
+
     license: MIT
 
     # Setting this will prevent goreleaser to actually try to commit the updated
@@ -88,7 +89,7 @@ brews:
 scoops:
   -
     description: |
-      Rename Terraform resources and modules and generate moved blocks. You can rename blocks flexibly using Jsonnet.
+      Deny self-approved GitHub Pull Requests.
     license: MIT
     skip_upload: auto
     repository:
