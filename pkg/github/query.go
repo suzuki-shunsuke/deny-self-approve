@@ -39,8 +39,8 @@ query($owner: String!, $repo: String!, $pr: Int!) {
 */
 
 type PageInfo struct {
-	HasNextPage bool
-	EndCursor   string
+	HasNextPage bool   `json:"hasNextPage"`
+	EndCursor   string `json:"endCursor"`
 }
 
 type GetPRQuery struct {
@@ -92,36 +92,36 @@ type ReviewsPullRequest struct {
 }
 
 type PullRequest struct {
-	HeadRefOID string
-	Reviews    *Reviews `graphql:"reviews(first:30)"`
-	Commits    *Commits `graphql:"commits(first:30)"`
+	HeadRefOID string   `json:"headRefOid"`
+	Reviews    *Reviews `json:"reviews" graphql:"reviews(first:30)"`
+	Commits    *Commits `json:"commits" graphql:"commits(first:30)"`
 }
 
 type Reviews struct {
-	TotalCount int
-	PageInfo   *PageInfo
-	Nodes      []*Review
+	TotalCount int       `json:"totalCount"`
+	PageInfo   *PageInfo `json:"pageInfo"`
+	Nodes      []*Review `json:"nodes"`
 }
 
 type Review struct {
-	ID     string
-	Author *User
-	State  string
-	Commit *ReviewCommit
+	ID     string        `json:"id"`
+	Author *User         `json:"author"`
+	State  string        `json:"state"`
+	Commit *ReviewCommit `json:"commit"`
 }
 
 type ReviewCommit struct {
-	OID string
+	OID string `json:"oid"`
 }
 
 type Commits struct {
-	TotalCount int
-	PageInfo   *PageInfo
-	Nodes      []*PullRequestCommit
+	TotalCount int                  `json:"totalCount"`
+	PageInfo   *PageInfo            `json:"pageInfo"`
+	Nodes      []*PullRequestCommit `json:"nodes"`
 }
 
 type PullRequestCommit struct {
-	Commit *Commit
+	Commit *Commit `json:"commit"`
 }
 
 func (c *Commit) Login() string {
@@ -132,14 +132,14 @@ func (c *Commit) Login() string {
 }
 
 type Commit struct {
-	Committer *Committer
-	Author    *Committer
+	Committer *Committer `json:"committer"`
+	Author    *Committer `json:"author"`
 }
 
 type Committer struct {
-	User *User
+	User *User `json:"user"`
 }
 
 type User struct {
-	Login string
+	Login string `json:"login"`
 }
