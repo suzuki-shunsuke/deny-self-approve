@@ -9,8 +9,11 @@ import (
 
 // Dismiss dismiss a review via GitHub GraphQL API.
 func (c *Client) Dismiss(ctx context.Context, reviewID string) error {
-	var m struct{}
-
+	var m struct {
+		DismissPullRequestReview struct {
+			ClientMutationID string
+		} `graphql:"dismissPullRequestReview(input:$input)"`
+	}
 	input := githubv4.DismissPullRequestReviewInput{
 		PullRequestReviewID: reviewID,
 		Message:             "Dismiss a self-approval",

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -21,18 +22,40 @@ func (c *Controller) Run(ctx context.Context, logE *logrus.Entry, input *Input) 
 	if err != nil {
 		return fmt.Errorf("get a pull request: %w", err)
 	}
-	// Checks if people other than commiters approve the PR
+	encoder := json.NewEncoder(c.stdout)
+	encoder.SetIndent("", "  ")
+	if err := encoder.Encode(&Result{
+		PullRequest: &PullRequest{
+			Repo:       fmt.Sprintf("%s/%s", input.RepoOwner, input.RepoName),
+			Number:     input.PR,
+			HeadRefOID: pr.HeadRefOID,
+			Reviews:    pr.Reviews,
+			Commits:    pr.Commits,
+		},
+		Options: &ResultOptions{
+			Dismiss: input.Dismiss,
+		},
+	}); err != nil {
+		return fmt.Errorf("encode the pull request: %w", err)
+	}
+	// Convert []*PullRequestCommit to []*Commit
 	commits := make([]*github.Commit, len(pr.Commits.Nodes))
 	for i, commit := range pr.Commits.Nodes {
 		commits[i] = commit.Commit
 	}
-	selfApprovals, ok := check(pr.HeadRefOID, pr.Reviews.Nodes, commits)
+	committers := getCommitters(commits)
+	// Checks if people other than commiters approve the PR
+	selfApprovals, ok := check(pr.HeadRefOID, pr.Reviews.Nodes, committers)
 	if input.Dismiss {
 		// If Dismiss is true, dismiss the approval of commiters
 		for _, selfApproval := range selfApprovals {
 			if err := c.gh.Dismiss(ctx, selfApproval.ID); err != nil {
 				logerr.WithError(logE, err).Error("dismiss a self-approval")
 			}
+			logE.WithFields(logrus.Fields{
+				"review_id": selfApproval.ID,
+				"approver":  selfApproval.Login,
+			}).Info("dismiss a self-approval")
 		}
 	}
 	if !ok {
@@ -41,19 +64,40 @@ func (c *Controller) Run(ctx context.Context, logE *logrus.Entry, input *Input) 
 	return nil
 }
 
+type Result struct {
+	Options     *ResultOptions `json:"options"`
+	PullRequest *PullRequest   `json:"pull_request"`
+}
+
+type ResultOptions struct {
+	Dismiss bool `json:"dismiss"`
+}
+
+type PullRequest struct {
+	Repo       string          `json:"repo"`
+	Number     int             `json:"number"`
+	HeadRefOID string          `json:"headRefOid"`
+	Reviews    *github.Reviews `json:"reviews" graphql:"reviews(first:30)"`
+	Commits    *github.Commits `json:"commits" graphql:"commits(first:30)"`
+}
+
 type Approval struct {
 	Login string
 	ID    string
 }
 
+func getCommitters(commits []*github.Commit) map[string]struct{} {
+	committers := make(map[string]struct{}, len(commits))
+	for _, commit := range commits {
+		committers[commit.Login()] = struct{}{}
+	}
+	return committers
+}
+
 // check checks if commiters approve the pull request themselves.
 // This function returns a list of commiters doing self-approval and a boolean if others approve the pull request.
 // The second return value is true if others approve the pull request.
-func check(headRefOID string, reviews []*github.Review, commits []*github.Commit) ([]*Approval, bool) {
-	commiters := map[string]struct{}{}
-	for _, commit := range commits {
-		commiters[commit.Login()] = struct{}{}
-	}
+func check(headRefOID string, reviews []*github.Review, committers map[string]struct{}) ([]*Approval, bool) {
 	selfApprovals := []*Approval{}
 	nonSelfApproved := false
 	for _, review := range reviews {
@@ -67,7 +111,7 @@ func check(headRefOID string, reviews []*github.Review, commits []*github.Commit
 			// Ignore approvals from bots
 			continue
 		}
-		if _, ok := commiters[review.Author.Login]; ok {
+		if _, ok := committers[review.Author.Login]; ok {
 			// self-approve
 			selfApprovals = append(selfApprovals, &Approval{
 				ID:    review.ID,
