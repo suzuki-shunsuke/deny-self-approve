@@ -28,6 +28,8 @@ jobs:
       - run: go install ./cmd/deny-self-approve
       - run: deny-self-approve --version
       - run: deny-self-approve --help
-      - run: deny-self-approve
-        env:
-          GITHUB_TOKEN: ${{github.token}}
+      # TODO Prepare a pull request for testing
+      # - run: deny-self-approve --pr "$PR"
+      #   env:
+      #     GITHUB_TOKEN: ${{github.token}}
+      #     PR: 1
