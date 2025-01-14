@@ -52,7 +52,7 @@ type Approval struct {
 func check(headRefOID string, reviews []*github.Review, commits []*github.Commit) ([]*Approval, bool) {
 	commiters := map[string]struct{}{}
 	for _, commit := range commits {
-		commiters[commit.Commiter.User.Login] = struct{}{}
+		commiters[commit.Login()] = struct{}{}
 	}
 	selfApprovals := []*Approval{}
 	nonSelfApproved := false

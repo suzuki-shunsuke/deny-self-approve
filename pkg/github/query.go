@@ -124,11 +124,19 @@ type PullRequestCommit struct {
 	Commit *Commit
 }
 
-type Commit struct {
-	Commiter *Commiter
+func (c *Commit) Login() string {
+	if c.Committer.User != nil {
+		return c.Committer.User.Login
+	}
+	return c.Author.User.Login
 }
 
-type Commiter struct {
+type Commit struct {
+	Committer *Committer
+	Author    *Committer
+}
+
+type Committer struct {
 	User *User
 }
 
