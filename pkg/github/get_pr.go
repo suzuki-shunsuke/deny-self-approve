@@ -66,8 +66,8 @@ func (c *Client) ListReviews(ctx context.Context, owner, name string, number int
 }
 
 // ListCommits lists commits of a pull request via GitHub GraphQL API.
-func (c *Client) ListCommits(ctx context.Context, owner, name string, number int, cursor string) ([]*Commit, error) {
-	var commits []*Commit
+func (c *Client) ListCommits(ctx context.Context, owner, name string, number int, cursor string) ([]*PullRequestCommit, error) {
+	var commits []*PullRequestCommit
 	variables := map[string]any{
 		"repoOwner": githubv4.String(owner),
 		"repoName":  githubv4.String(name),

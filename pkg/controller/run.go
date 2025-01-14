@@ -22,7 +22,11 @@ func (c *Controller) Run(ctx context.Context, logE *logrus.Entry, input *Input) 
 		return fmt.Errorf("get a pull request: %w", err)
 	}
 	// Checks if people other than commiters approve the PR
-	selfApprovals, ok := check(pr.HeadRefOID, pr.Reviews.Nodes, pr.Commits.Nodes)
+	commits := make([]*github.Commit, len(pr.Commits.Nodes))
+	for i, commit := range pr.Commits.Nodes {
+		commits[i] = commit.Commit
+	}
+	selfApprovals, ok := check(pr.HeadRefOID, pr.Reviews.Nodes, commits)
 	if input.Dismiss {
 		// If Dismiss is true, dismiss the approval of commiters
 		for _, selfApproval := range selfApprovals {

@@ -55,7 +55,7 @@ func (q *ListCommitsQuery) PageInfo() *PageInfo {
 	return q.Repository.PullRequest.Commits.PageInfo
 }
 
-func (q *ListCommitsQuery) Nodes() []*Commit {
+func (q *ListCommitsQuery) Nodes() []*PullRequestCommit {
 	return q.Repository.PullRequest.Commits.Nodes
 }
 
@@ -117,7 +117,11 @@ type ReviewCommit struct {
 type Commits struct {
 	TotalCount int
 	PageInfo   *PageInfo
-	Nodes      []*Commit
+	Nodes      []*PullRequestCommit
+}
+
+type PullRequestCommit struct {
+	Commit *Commit
 }
 
 type Commit struct {
