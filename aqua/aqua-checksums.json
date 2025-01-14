@@ -156,33 +156,33 @@
       "algorithm": "sha256"
     },
     {
-      "id": "github_release/github.com/suzuki-shunsuke/cmdx/v1.7.4/cmdx_darwin_amd64.tar.gz",
-      "checksum": "94C2CCFC4330DBF8D587A1127E0CF6BABC618506CBA0D89BF0975620FAF26E60",
+      "id": "github_release/github.com/suzuki-shunsuke/cmdx/v1.7.7/cmdx_darwin_amd64.tar.gz",
+      "checksum": "71CAED1B9BF653D58E4EF1BE7994E95469D94A96962FF412C55E81647502F3FD",
       "algorithm": "sha256"
     },
     {
-      "id": "github_release/github.com/suzuki-shunsuke/cmdx/v1.7.4/cmdx_darwin_arm64.tar.gz",
-      "checksum": "EAB029A0ABC4B33228853BF9B6CDEC1A42284326AD6F6B96BF1CAA6CDAFEA407",
+      "id": "github_release/github.com/suzuki-shunsuke/cmdx/v1.7.7/cmdx_darwin_arm64.tar.gz",
+      "checksum": "D23AF956F833DECC29FC7E7F9511965ED284167DB5F9CC3C81FD9A0DD3F3399E",
       "algorithm": "sha256"
     },
     {
-      "id": "github_release/github.com/suzuki-shunsuke/cmdx/v1.7.4/cmdx_linux_amd64.tar.gz",
-      "checksum": "CF6B642829175BDC64DF16D04B7FAA953B684F4290557ADE4BEF9B661F3F4452",
+      "id": "github_release/github.com/suzuki-shunsuke/cmdx/v1.7.7/cmdx_linux_amd64.tar.gz",
+      "checksum": "CF6AD4506170220C06976ACD713289EB574D2311F049AF5692D532F9FAF5E86A",
       "algorithm": "sha256"
     },
     {
-      "id": "github_release/github.com/suzuki-shunsuke/cmdx/v1.7.4/cmdx_linux_arm64.tar.gz",
-      "checksum": "2FD795E2E91BD60A9B8DA4328850B655DE7D7E7BAF8826DDAD4BEAF97291AB25",
+      "id": "github_release/github.com/suzuki-shunsuke/cmdx/v1.7.7/cmdx_linux_arm64.tar.gz",
+      "checksum": "E717D43C231BA84B46D560C0962A5FFB33309BA3260CBF909B48395C03C47FB8",
       "algorithm": "sha256"
     },
     {
-      "id": "github_release/github.com/suzuki-shunsuke/cmdx/v1.7.4/cmdx_windows_amd64.tar.gz",
-      "checksum": "AF287C68213B1C29CEDE06A0308003D6EE0A015FF89A455858DF5D3E4838BCCB",
+      "id": "github_release/github.com/suzuki-shunsuke/cmdx/v1.7.7/cmdx_windows_amd64.tar.gz",
+      "checksum": "817244714BF2660C313098A7CE860354118B9FBB5F1D0F72C527588C461702AC",
       "algorithm": "sha256"
     },
     {
-      "id": "github_release/github.com/suzuki-shunsuke/cmdx/v1.7.4/cmdx_windows_arm64.tar.gz",
-      "checksum": "40F31B6E5926B949148A30957D5DD8761F3579433161EB9AA2627AD1009DB46E",
+      "id": "github_release/github.com/suzuki-shunsuke/cmdx/v1.7.7/cmdx_windows_arm64.tar.gz",
+      "checksum": "3C2081F29CD2A2C5C4B3FBD02C4576FDFAFBFEB3DEDAD84EAA5CD0B60AC86771",
       "algorithm": "sha256"
     },
     {
