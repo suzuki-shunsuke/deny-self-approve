@@ -1,6 +1,6 @@
 # deny-self-approve
 
-[![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/suzuki-shunsuke/deny-self-approve/main/LICENSE) | [Install](docs/install.md)
+[![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/suzuki-shunsuke/deny-self-approve/main/LICENSE) | [Usage](USAGE.md)
 
 deny-self-approve is a CLI to deny self-approved GitHub Pull Requests.
 
@@ -12,3 +12,17 @@ And people can also push commits to pull requests created by others (other users
 
 To prevent this threat, this tool checks if a given pull request approvers and commiters.
 It can dismiss self-approvals, and it validates if the pull request is approved by someone other than committers.
+
+## How To Use
+
+### Dismiss approvals by pull_request_review events
+
+```yaml
+
+```
+
+### Check if pull requests are self-approved before deploying
+
+```yaml
+
+```
