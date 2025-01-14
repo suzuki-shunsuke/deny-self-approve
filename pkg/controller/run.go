@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 	"github.com/suzuki-shunsuke/deny-self-approve/pkg/github"
@@ -52,9 +53,14 @@ func check(headRefOID string, reviews []*github.Review, commits []*github.Commit
 	selfApprovals := []*Approval{}
 	nonSelfApproved := false
 	for _, review := range reviews {
+		// TODO check CODEOWNERS
 		if review.State != "APPROVED" || review.Commit.OID != headRefOID {
 			// Ignore reviews other than APPROVED
 			// Ignore reviews for non head commits
+			continue
+		}
+		if strings.HasSuffix(review.Author.Login, "[bot]") {
+			// Ignore approvals from bots
 			continue
 		}
 		if _, ok := commiters[review.Author.Login]; ok {
@@ -65,9 +71,8 @@ func check(headRefOID string, reviews []*github.Review, commits []*github.Commit
 			})
 			continue
 		}
-		// Someone other than the committer approved the PR, so this PR is not self-approved.
+		// Someone other than committers approved the PR, so this PR is not self-approved.
 		// TODO dismiss approvals from bots
-		// TODO ignore approvals from bots
 		nonSelfApproved = true
 	}
 	return selfApprovals, nonSelfApproved
