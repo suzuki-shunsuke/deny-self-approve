@@ -7,7 +7,7 @@ import (
 	"github.com/shurcooL/githubv4"
 )
 
-// GetPR gets a pull request reviews and commiters via GitHub GraphQL API.
+// GetPR gets a pull request reviews and committers via GitHub GraphQL API.
 func (c *Client) GetPR(ctx context.Context, owner, name string, number int) (*PullRequest, error) {
 	q := &GetPRQuery{}
 	variables := map[string]any{

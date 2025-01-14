@@ -13,11 +13,11 @@ import (
 )
 
 // Run denys self-approved GitHub Pull Requests.
-// It gets pull request reviews and commiters via GitHub GraphQL API, and checks if people other than commiters approve the PR.
-// If Dismiss is true, it dismisses the approval of commiters.
-// If the PR isn't approved by people other than commiters, it returns an error.
+// It gets pull request reviews and committers via GitHub GraphQL API, and checks if people other than committers approve the PR.
+// If Dismiss is true, it dismisses the approval of committers.
+// If the PR isn't approved by people other than committers, it returns an error.
 func (c *Controller) Run(ctx context.Context, logE *logrus.Entry, input *Input) error {
-	// Get a pull request reviews and commiters via GraphQL API
+	// Get a pull request reviews and committers via GraphQL API
 	pr, err := c.gh.GetPR(ctx, input.RepoOwner, input.RepoName, input.PR)
 	if err != nil {
 		return fmt.Errorf("get a pull request: %w", err)
@@ -44,10 +44,10 @@ func (c *Controller) Run(ctx context.Context, logE *logrus.Entry, input *Input) 
 		commits[i] = commit.Commit
 	}
 	committers := getCommitters(commits)
-	// Checks if people other than commiters approve the PR
+	// Checks if people other than committers approve the PR
 	selfApprovals, ok := check(pr.HeadRefOID, pr.Reviews.Nodes, committers)
 	if input.Dismiss {
-		// If Dismiss is true, dismiss the approval of commiters
+		// If Dismiss is true, dismiss the approval of committers
 		for _, selfApproval := range selfApprovals {
 			if err := c.gh.Dismiss(ctx, selfApproval.ID); err != nil {
 				logerr.WithError(logE, err).Error("dismiss a self-approval")
@@ -94,8 +94,8 @@ func getCommitters(commits []*github.Commit) map[string]struct{} {
 	return committers
 }
 
-// check checks if commiters approve the pull request themselves.
-// This function returns a list of commiters doing self-approval and a boolean if others approve the pull request.
+// check checks if committers approve the pull request themselves.
+// This function returns a list of committers doing self-approval and a boolean if others approve the pull request.
 // The second return value is true if others approve the pull request.
 func check(headRefOID string, reviews []*github.Review, committers map[string]struct{}) ([]*Approval, bool) {
 	selfApprovals := []*Approval{}

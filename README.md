@@ -17,7 +17,7 @@ But even if you configure these rulesets properly, people can still bypass the r
 For instance, people can approve pull requests using GitHub Actions token, GitHub App, or Machine Users.
 And people can also push commits to pull requests created by others (other users, GitHub Actions token, GitHub App, or Machine Users) and approve them.
 
-To prevent this threat, this tool checks if a given pull request approvers and commiters.
+To prevent this threat, this tool checks if a given pull request approvers and committers.
 It can dismiss self-approvals, and it validates if the pull request is approved by someone other than committers.
 
 ## How To Use
