@@ -58,7 +58,7 @@ func (c *Controller) Run(ctx context.Context, logE *logrus.Entry, input *Input) 
 			}).Info("dismiss a self-approval")
 		}
 	}
-	if !ok {
+	if input.Command == "validate" && !ok {
 		return errors.New("pull requests must be approved by people who don't push commits to them")
 	}
 	return nil

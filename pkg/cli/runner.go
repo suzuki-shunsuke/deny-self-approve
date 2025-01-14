@@ -21,8 +21,11 @@ type CLI struct {
 	LogColor string `help:"The log color" enum:"auto,always,never" default:"auto"`
 	Repo     string `help:"The repository full name" short:"r"`
 	PR       int    `help:"The pull request number"`
-	Dismiss  bool   `help:"Dimiss the pull request" short:"d"`
 	Version  bool   `help:"Show version" short:"v"`
+	Validate struct {
+		Dismiss bool `help:"Dimiss the pull request" short:"d"`
+	} `cmd:"" help:"Validate if anyone who didn't push commits to the pull request approves it"`
+	Dismiss struct{} `cmd:"" help:"Dismiss self-approvals"`
 }
 
 type Runner struct {
@@ -47,7 +50,7 @@ type LDFlags struct {
 // https://github.com/suzuki-shunsuke/go-ci-env/tree/main/cienv
 func (r *Runner) Run(ctx context.Context) error {
 	cli := &CLI{}
-	kong.Parse(cli)
+	kctx := kong.Parse(cli)
 	if cli.Version {
 		fmt.Fprintln(r.Stdout, r.LDFlags.Version)
 		return nil
@@ -57,10 +60,20 @@ func (r *Runner) Run(ctx context.Context) error {
 
 	gh := &github.Client{}
 	gh.Init(ctx, os.Getenv("GITHUB_TOKEN"))
+
 	input := &controller.Input{
-		Dismiss: cli.Dismiss,
 		PR:      cli.PR,
+		Command: kctx.Command(),
 	}
+	switch input.Command {
+	case "validate":
+		input.Dismiss = cli.Validate.Dismiss
+	case "dismiss":
+		input.Dismiss = true
+	default:
+		return fmt.Errorf("unknown command: %s", input.Command)
+	}
+
 	// TODO Get a pull request number from a commit hash
 	if err := r.getParamFromEnv(cli, input); err != nil {
 		return err
