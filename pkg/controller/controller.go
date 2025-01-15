@@ -32,4 +32,5 @@ type Input struct {
 	RepoName  string
 	PR        int
 	Dismiss   bool
+	Command   string
 }
