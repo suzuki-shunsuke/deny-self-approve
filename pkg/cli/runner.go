@@ -6,14 +6,12 @@ import (
 	"io"
 	"os"
 	"strings"
+	"time"
 
-	"github.com/alecthomas/kong"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/afero"
 	"github.com/suzuki-shunsuke/deny-self-approve/pkg/controller"
-	"github.com/suzuki-shunsuke/deny-self-approve/pkg/github"
-	"github.com/suzuki-shunsuke/deny-self-approve/pkg/log"
 	"github.com/suzuki-shunsuke/go-ci-env/v3/cienv"
+	"github.com/urfave/cli/v2"
 )
 
 type CLI struct {
@@ -49,55 +47,83 @@ type LDFlags struct {
 // - GITHUB_TOKEN: GitHub Access token
 // https://github.com/suzuki-shunsuke/go-ci-env/tree/main/cienv
 func (r *Runner) Run(ctx context.Context) error {
-	cli := &CLI{}
-	kctx := kong.Parse(cli)
-	if cli.Version {
-		fmt.Fprintln(r.Stdout, r.LDFlags.Version)
+	compiledDate, err := time.Parse(time.RFC3339, r.LDFlags.Date)
+	if err != nil {
+		compiledDate = time.Now()
+	}
+	app := cli.App{
+		Name:     "deny-self-approve",
+		Usage:    "Deny self-approvals on GitHub pull requests",
+		Version:  r.LDFlags.Version + " (" + r.LDFlags.Commit + ")",
+		Compiled: compiledDate,
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:  "log-level",
+				Usage: "log level. One of 'debug', 'info', 'warn', 'error'",
+				Value: "info",
+			},
+			&cli.StringFlag{
+				Name:  "log-color",
+				Usage: "Log color. One of 'auto' (default), 'always', 'never'",
+				Value: "auto",
+			},
+			&cli.StringFlag{
+				Name:    "repo",
+				Usage:   "The repository full name",
+				Aliases: []string{"r"},
+				Value:   "auto",
+			},
+			&cli.StringFlag{
+				Name:  "pr",
+				Usage: "The pull request number",
+			},
+		},
+		EnableBashCompletion: true,
+		Commands: []*cli.Command{
+			(&validateCommand{
+				stdout: r.Stdout,
+				stderr: r.Stderr,
+				logE:   r.LogE,
+			}).command(),
+			(&dismissCommand{
+				stdout: r.Stdout,
+				stderr: r.Stderr,
+				logE:   r.LogE,
+			}).command(),
+			(&versionCommand{
+				stdout:  r.Stdout,
+				version: r.LDFlags.Version,
+				commit:  r.LDFlags.Commit,
+			}).command(),
+			(&completionCommand{
+				logE:   r.LogE,
+				stdout: r.Stdout,
+			}).command(),
+		},
+	}
+	return app.RunContext(ctx, os.Args) //nolint:wrapcheck
+}
+
+func setRepo(repo string, input *controller.Input) error {
+	if repo == "" {
 		return nil
 	}
-	log.SetColor(cli.LogColor, r.LogE)
-	log.SetLevel(cli.LogLevel, r.LogE)
-
-	gh := &github.Client{}
-	gh.Init(ctx, os.Getenv("GITHUB_TOKEN"))
-
-	input := &controller.Input{
-		PR:      cli.PR,
-		Command: kctx.Command(),
+	// Read the repository full name from the command line argument --repo
+	// Split the repository full name into the owner and the repository name
+	o, n, ok := strings.Cut(repo, "/")
+	if !ok {
+		return fmt.Errorf("repo must be a repository full name like cli/cli: %s", repo)
 	}
-	switch input.Command {
-	case "validate":
-		input.Dismiss = cli.Validate.Dismiss
-	case "dismiss":
-		input.Dismiss = true
-	default:
-		return fmt.Errorf("unknown command: %s", input.Command)
-	}
-
-	// TODO Get a pull request number from a commit hash
-	if err := r.getParamFromEnv(cli, input); err != nil {
-		return err
-	}
-	ctrl := &controller.Controller{}
-	ctrl.Init(afero.NewOsFs(), gh, r.Stdout, r.Stderr)
-	return ctrl.Run(ctx, r.LogE, input) //nolint:wrapcheck
+	input.RepoOwner = o
+	input.RepoName = n
+	return nil
 }
 
 // getParamFromEnv reads parameters from the environment variables and sets them to input.
 // - input.RepoOwner
 // - input.RepoName
 // - input.PR
-func (r *Runner) getParamFromEnv(cli *CLI, input *controller.Input) error {
-	if cli.Repo != "" {
-		// Read the repository full name from the command line argument --repo
-		// Split the repository full name into the owner and the repository name
-		o, n, ok := strings.Cut(cli.Repo, "/")
-		if !ok {
-			return fmt.Errorf("repo must be a repository full name like cli/cli: %s", cli.Repo)
-		}
-		input.RepoOwner = o
-		input.RepoName = n
-	}
+func getParamFromEnv(input *controller.Input) error {
 	if input.RepoOwner != "" && input.PR != 0 {
 		return nil
 	}
