@@ -48,7 +48,7 @@ jobs:
       - uses: aquaproj/aqua-installer@f13c5d2f0357708d85477aabe50fd3f725528745 # v3.1.0
         with:
           aqua_version: v2.42.2
-      - run: deny-self-approve -d
+      - run: deny-self-approve dismiss
         env:
           GITHUB_TOKEN: ${{github.token}}
 ```
@@ -82,7 +82,7 @@ jobs:
           eval "$env"
           echo "PR_NUMBER=$CI_INFO_PR_NUMBER" >> "$GITHUB_ENV"
       - run: |
-          if ! deny-self-approve --pr "$PR_NUMBER"; then
+          if ! deny-self-approve --pr "$PR_NUMBER" validate; then
             github-comment post -k deny-self-approve -pr "$PR_NUMBER"
             exit 1
           fi
