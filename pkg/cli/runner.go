@@ -71,7 +71,6 @@ func (r *Runner) Run(ctx context.Context) error {
 				Name:    "repo",
 				Usage:   "The repository full name",
 				Aliases: []string{"r"},
-				Value:   "auto",
 			},
 			&cli.StringFlag{
 				Name:  "pr",
