@@ -107,7 +107,7 @@ func check(headRefOID string, reviews []*github.Review, committers map[string]st
 			// Ignore reviews for non head commits
 			continue
 		}
-		if strings.HasSuffix(review.Author.Login, "[bot]") {
+		if strings.HasPrefix(review.Author.ResourcePath, "/apps/") || strings.HasSuffix(review.Author.Login, "[bot]") {
 			// Ignore approvals from bots
 			continue
 		}
