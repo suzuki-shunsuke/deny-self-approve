@@ -105,7 +105,7 @@ type Reviews struct {
 
 type Review struct {
 	ID     string        `json:"id"`
-	Author *User         `json:"author"`
+	Author *Reviewer     `json:"author"`
 	State  string        `json:"state"`
 	Commit *ReviewCommit `json:"commit"`
 }
@@ -142,4 +142,9 @@ type Committer struct {
 
 type User struct {
 	Login string `json:"login"`
+}
+
+type Reviewer struct {
+	Login        string `json:"login"`
+	ResourcePath string `json:"resourcePath"`
 }
