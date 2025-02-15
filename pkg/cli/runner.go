@@ -11,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/suzuki-shunsuke/deny-self-approve/pkg/controller"
 	"github.com/suzuki-shunsuke/go-ci-env/v3/cienv"
+	"github.com/suzuki-shunsuke/urfave-cli-help-all/helpall"
 	"github.com/urfave/cli/v2"
 )
 
@@ -98,6 +99,7 @@ func (r *Runner) Run(ctx context.Context) error {
 				logE:   r.LogE,
 				stdout: r.Stdout,
 			}).command(),
+			helpall.New(nil),
 		},
 	}
 	return app.RunContext(ctx, os.Args) //nolint:wrapcheck
