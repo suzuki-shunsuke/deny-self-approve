@@ -1,6 +1,6 @@
 # deny-self-approve
 
-[![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/suzuki-shunsuke/deny-self-approve/main/LICENSE) | [Usage](USAGE.md)
+[![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/suzuki-shunsuke/deny-self-approve/main/LICENSE) | [Usage](USAGE.md) | [GitHub Action](https://github.com/suzuki-shunsuke/deny-self-approve-action)
 
 `deny-self-approve` is a CLI tool designed to validate self-approved GitHub Pull Requests.
 It dismisses self-approvals and triggers a CI failure if no external approver — someone who did not push commits to the pull request — approves the changes.
@@ -24,5 +24,4 @@ And it can also validate pull requests before doing something like deployment.
 
 ## GitHub Actions
 
-We provide a GitHub Actions: https://github.com/suzuki-shunsuke/deny-self-approve-action
-This action is useful to prevent self-approvals.
+[We provide a GitHub Actions to prevent self-approvals easily.](https://github.com/suzuki-shunsuke/deny-self-approve-action)
