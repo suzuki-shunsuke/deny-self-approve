@@ -4,71 +4,22 @@
 
 ```console
 $ deny-self-approve help
-NAME:
-   deny-self-approve - Deny self-approvals on GitHub pull requests
-
-USAGE:
-   deny-self-approve [global options] command [command options]
-
-VERSION:
-    ()
-
-COMMANDS:
-   validate    Validate if anyone who didn't push commits to the pull request approves it
-   dismiss     Dismiss self-approvals
-   version     Show version
-   completion  Output shell completion script for bash, zsh, or fish
-   help, h     Shows a list of commands or help for one command
-
-GLOBAL OPTIONS:
-   --log-level value       log level. One of 'debug', 'info', 'warn', 'error' (default: "info")
-   --log-color value       Log color. One of 'auto' (default), 'always', 'never' (default: "auto")
-   --repo value, -r value  The repository full name (default: "auto")
-   --pr value              The pull request number
-   --help, -h              show help
-   --version, -v           print the version
 ```
 
 ## deny-self-approve validate
 
 ```console
 $ deny-self-approve help validate
-NAME:
-   deny-self-approve validate - Validate if anyone who didn't push commits to the pull request approves it
-
-USAGE:
-   deny-self-approve validate [command options]
-
-OPTIONS:
-   --dismiss   Dimiss self-approvals (default: false)
-   --help, -h  show help
 ```
 
 ## deny-self-approve dismiss
 
 ```console
 $ deny-self-approve help dismiss
-NAME:
-   deny-self-approve dismiss - Dismiss self-approvals
-
-USAGE:
-   deny-self-approve dismiss [command options]
-
-OPTIONS:
-   --help, -h  show help
 ```
 
 ## deny-self-approve version
 
 ```console
 $ deny-self-approve help version
-NAME:
-   deny-self-approve version - Show version
-
-USAGE:
-   deny-self-approve version [command options]
-
-OPTIONS:
-   --json      (default: false)
-   --help, -h  show help
 ```
