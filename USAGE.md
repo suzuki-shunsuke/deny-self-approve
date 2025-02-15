@@ -11,7 +11,7 @@ USAGE:
    deny-self-approve [global options] command [command options]
 
 VERSION:
-    ()
+   0.2.1 (19956d5b5d7fd22295f02994d0c73659fca24049)
 
 COMMANDS:
    validate    Validate if anyone who didn't push commits to the pull request approves it
@@ -23,7 +23,7 @@ COMMANDS:
 GLOBAL OPTIONS:
    --log-level value       log level. One of 'debug', 'info', 'warn', 'error' (default: "info")
    --log-color value       Log color. One of 'auto' (default), 'always', 'never' (default: "auto")
-   --repo value, -r value  The repository full name (default: "auto")
+   --repo value, -r value  The repository full name
    --pr value              The pull request number
    --help, -h              show help
    --version, -v           print the version
