@@ -133,7 +133,7 @@ func (c *Commit) Login() (string, error) {
 	if c.Author.User != nil {
 		return c.Author.User.Login, nil
 	}
-	return "", errors.New("both commiter and author are null")
+	return "", errors.New("commit isn't linked to GitHub Users")
 }
 
 type Commit struct {
