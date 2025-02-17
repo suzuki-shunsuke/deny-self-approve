@@ -77,10 +77,6 @@ func (r *Runner) Run(ctx context.Context) error {
 				Name:  "pr",
 				Usage: "The pull request number",
 			},
-			&cli.BoolFlag{
-				Name:  "ignore-not-linked-commit",
-				Usage: "Ignore commits not linked to GitHub Users",
-			},
 		},
 		EnableBashCompletion: true,
 		Commands: []*cli.Command{

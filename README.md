@@ -30,15 +30,4 @@ And it can also validate pull requests before doing something like deployment.
 
 deny-self-approve gets commits' users to deny self approvals.
 But if a commit isn't linked to a GitHub User, deny-self-approve can't get a committer.
-In that case, deny-self-approve fails by default.
-
-- [You should configure Git properly](https://docs.github.com/en/pull-requests/committing-changes-to-your-project/troubleshooting-commits/why-are-my-commits-linked-to-the-wrong-user).
-- [As a best practice, all commits should be verified](https://docs.github.com/en/authentication/managing-commit-signature-verification).
-
-But if it's difficult, you can ignore these commits by `--ignore-not-linked-commit` option.
-
-```sh
-deny-self-approve --ignore-not-linked-commit validate # or dismiss
-```
-
-We don't recommend this because this isn't secure.
+In that case, deny-self-approve fails. [You need to configure Git properly](https://docs.github.com/en/pull-requests/committing-changes-to-your-project/troubleshooting-commits/why-are-my-commits-linked-to-the-wrong-user).
