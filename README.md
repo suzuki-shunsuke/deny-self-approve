@@ -25,3 +25,9 @@ And it can also validate pull requests before doing something like deployment.
 ## GitHub Actions
 
 [We provide a GitHub Actions to prevent self-approvals easily.](https://github.com/suzuki-shunsuke/deny-self-approve-action)
+
+## :warning: Commit not linked to a GitHub User
+
+deny-self-approve gets commits' users to deny self approvals.
+But if a commit isn't linked to a GitHub User, deny-self-approve can't get a committer.
+In that case, deny-self-approve fails. [You need to configure Git properly](https://docs.github.com/en/pull-requests/committing-changes-to-your-project/troubleshooting-commits/why-are-my-commits-linked-to-the-wrong-user).

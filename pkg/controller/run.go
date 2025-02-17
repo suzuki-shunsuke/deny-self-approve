@@ -43,7 +43,10 @@ func (c *Controller) Run(ctx context.Context, logE *logrus.Entry, input *Input) 
 	for i, commit := range pr.Commits.Nodes {
 		commits[i] = commit.Commit
 	}
-	committers := getCommitters(commits)
+	committers, err := getCommitters(commits)
+	if err != nil {
+		return err
+	}
 	// Checks if people other than committers approve the PR
 	selfApprovals, ok := check(pr.HeadRefOID, pr.Reviews.Nodes, committers)
 	if input.Dismiss {
@@ -86,12 +89,16 @@ type Approval struct {
 	ID    string
 }
 
-func getCommitters(commits []*github.Commit) map[string]struct{} {
+func getCommitters(commits []*github.Commit) (map[string]struct{}, error) {
 	committers := make(map[string]struct{}, len(commits))
 	for _, commit := range commits {
-		committers[commit.Login()] = struct{}{}
+		login := commit.Login()
+		if login == "" {
+			return committers, errors.New("commit isn't linked to a GitHub User")
+		}
+		committers[login] = struct{}{}
 	}
-	return committers
+	return committers, nil
 }
 
 // check checks if committers approve the pull request themselves.

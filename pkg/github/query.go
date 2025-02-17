@@ -124,24 +124,41 @@ type PullRequestCommit struct {
 	Commit *Commit `json:"commit"`
 }
 
-func (c *Commit) Login() string {
-	if c.Committer.User != nil {
-		return c.Committer.User.Login
-	}
-	return c.Author.User.Login
-}
-
 type Commit struct {
 	Committer *Committer `json:"committer"`
 	Author    *Committer `json:"author"`
+}
+
+func (c *Commit) Login() string {
+	if c == nil {
+		return ""
+	}
+	if login := c.Committer.Login(); login != "" {
+		return login
+	}
+	return c.Author.Login()
 }
 
 type Committer struct {
 	User *User `json:"user"`
 }
 
+func (c *Committer) Login() string {
+	if c == nil {
+		return ""
+	}
+	return c.User.GetLogin()
+}
+
 type User struct {
 	Login string `json:"login"`
+}
+
+func (u *User) GetLogin() string {
+	if u == nil {
+		return ""
+	}
+	return u.Login
 }
 
 type Reviewer struct {
