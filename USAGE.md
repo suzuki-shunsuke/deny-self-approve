@@ -11,7 +11,7 @@ USAGE:
    deny-self-approve [global options] command [command options]
 
 VERSION:
-   0.2.2 (9e3c80b7e6e1f304f0a6c2280db13b09d4b0d40a)
+   0.2.3 (3c93ef9a713fc21af41cfbe98f17a73bb8c732de)
 
 COMMANDS:
    validate    Validate if anyone who didn't push commits to the pull request approves it
