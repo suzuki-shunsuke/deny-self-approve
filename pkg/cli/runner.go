@@ -9,7 +9,10 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/afero"
 	"github.com/suzuki-shunsuke/deny-self-approve/pkg/controller"
+	"github.com/suzuki-shunsuke/deny-self-approve/pkg/github"
+	"github.com/suzuki-shunsuke/deny-self-approve/pkg/log"
 	"github.com/suzuki-shunsuke/go-ci-env/v3/cienv"
 	"github.com/suzuki-shunsuke/urfave-cli-help-all/helpall"
 	"github.com/urfave/cli/v2"
@@ -148,4 +151,30 @@ func getParamFromEnv(input *controller.Input) error {
 	}
 
 	return nil
+}
+
+func commonAction(c *cli.Context, logE *logrus.Entry, cmd string, stdout, stderr io.Writer, dismiss bool) error {
+	log.SetLevel(c.String("log-level"), logE)
+	log.SetColor(c.String("log-color"), logE)
+	gh := &github.Client{}
+	gh.Init(c.Context, os.Getenv("GITHUB_TOKEN"))
+
+	input := &controller.Input{
+		PR:      c.Int("pr"),
+		Command: cmd,
+		Dismiss: dismiss,
+	}
+
+	if err := setRepo(c.String("repo"), input); err != nil {
+		return err
+	}
+
+	// TODO Get a pull request number from a commit hash
+	if err := getParamFromEnv(input); err != nil {
+		return err
+	}
+
+	ctrl := &controller.Controller{}
+	ctrl.Init(afero.NewOsFs(), gh, stdout, stderr)
+	return ctrl.Run(c.Context, logE, input) //nolint:wrapcheck
 }
