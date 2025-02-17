@@ -11,7 +11,6 @@ func TestCommit_Login(t *testing.T) {
 	data := []struct {
 		name   string
 		commit *github.Commit
-		isErr  bool
 		exp    string
 	}{
 		{
@@ -44,23 +43,13 @@ func TestCommit_Login(t *testing.T) {
 				Author:    &github.Committer{},
 				Committer: &github.Committer{},
 			},
-			exp:   "",
-			isErr: true,
+			exp: "",
 		},
 	}
 	for _, d := range data {
 		t.Run(d.name, func(t *testing.T) {
 			t.Parallel()
-			login, err := d.commit.Login()
-			if err != nil {
-				if !d.isErr {
-					t.Fatal(err)
-				}
-				return
-			}
-			if d.isErr {
-				t.Fatal("error must be returned")
-			}
+			login := d.commit.Login()
 			if login != d.exp {
 				t.Fatalf("wanted: %s, got: %s", d.exp, login)
 			}

@@ -91,17 +91,12 @@ type Approval struct {
 
 func getCommitters(commits []*github.Commit) (map[string]struct{}, error) {
 	committers := make(map[string]struct{}, len(commits))
-	failed := false
 	for _, commit := range commits {
-		user, err := commit.Login()
-		if err != nil {
-			failed = true
-			continue
+		login := commit.Login()
+		if login == "" {
+			return committers, errors.New("commit isn't linked to a GitHub User")
 		}
-		committers[user] = struct{}{}
-	}
-	if failed {
-		return committers, errors.New("commit isn't linked to a GitHub User")
+		committers[login] = struct{}{}
 	}
 	return committers, nil
 }

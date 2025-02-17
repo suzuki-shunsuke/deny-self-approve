@@ -1,7 +1,5 @@
 package github
 
-import "errors"
-
 /*
 query($owner: String!, $repo: String!, $pr: Int!) {
   repository(owner: $owner, name: $repo) {
@@ -126,30 +124,41 @@ type PullRequestCommit struct {
 	Commit *Commit `json:"commit"`
 }
 
-func (c *Commit) Login() (string, error) {
-	if c == nil {
-		return "", errors.New("commit isn't linked to a GitHub User")
-	}
-	if c.Committer != nil && c.Committer.User != nil {
-		return c.Committer.User.Login, nil
-	}
-	if c.Author != nil && c.Author.User != nil {
-		return c.Author.User.Login, nil
-	}
-	return "", errors.New("commit isn't linked to a GitHub User")
-}
-
 type Commit struct {
 	Committer *Committer `json:"committer"`
 	Author    *Committer `json:"author"`
+}
+
+func (c *Commit) Login() string {
+	if c == nil {
+		return ""
+	}
+	if login := c.Committer.Login(); login != "" {
+		return login
+	}
+	return c.Author.Login()
 }
 
 type Committer struct {
 	User *User `json:"user"`
 }
 
+func (c *Committer) Login() string {
+	if c == nil {
+		return ""
+	}
+	return c.User.GetLogin()
+}
+
 type User struct {
 	Login string `json:"login"`
+}
+
+func (u *User) GetLogin() string {
+	if u == nil {
+		return ""
+	}
+	return u.Login
 }
 
 type Reviewer struct {
