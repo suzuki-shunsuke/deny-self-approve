@@ -48,7 +48,7 @@ func (c *Controller) Run(ctx context.Context, logE *logrus.Entry, input *Input) 
 		if !input.IgnoreNotLinkedCommit {
 			return err
 		}
-		logerr.WithError(logE, err).Warn("commits aren't linked to GitHub Users")
+		logerr.WithError(logE, err).Warn("commit isn't linked to a GitHub User")
 	}
 	// Checks if people other than committers approve the PR
 	selfApprovals, ok := check(pr.HeadRefOID, pr.Reviews.Nodes, committers)
@@ -104,7 +104,7 @@ func getCommitters(commits []*github.Commit) (map[string]struct{}, error) {
 		committers[user] = struct{}{}
 	}
 	if failed {
-		return committers, errors.New("both commiter and author are null")
+		return committers, errors.New("commit isn't linked to a GitHub User")
 	}
 	return committers, nil
 }
