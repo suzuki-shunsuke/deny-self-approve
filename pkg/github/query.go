@@ -1,5 +1,7 @@
 package github
 
+import "errors"
+
 /*
 query($owner: String!, $repo: String!, $pr: Int!) {
   repository(owner: $owner, name: $repo) {
@@ -124,11 +126,14 @@ type PullRequestCommit struct {
 	Commit *Commit `json:"commit"`
 }
 
-func (c *Commit) Login() string {
+func (c *Commit) Login() (string, error) {
 	if c.Committer.User != nil {
-		return c.Committer.User.Login
+		return c.Committer.User.Login, nil
 	}
-	return c.Author.User.Login
+	if c.Author.User != nil {
+		return c.Author.User.Login, nil
+	}
+	return "", errors.New("both commiter and author are null")
 }
 
 type Commit struct {

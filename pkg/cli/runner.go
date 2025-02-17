@@ -77,6 +77,10 @@ func (r *Runner) Run(ctx context.Context) error {
 				Name:  "pr",
 				Usage: "The pull request number",
 			},
+			&cli.BoolFlag{
+				Name:  "ignore-unknown-commit",
+				Usage: "Ignore commits whose committer is unknown",
+			},
 		},
 		EnableBashCompletion: true,
 		Commands: []*cli.Command{

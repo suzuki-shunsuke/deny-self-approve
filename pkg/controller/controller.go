@@ -28,9 +28,10 @@ func (c *Controller) Init(fs afero.Fs, gh GitHub, stdout, stderr io.Writer) {
 }
 
 type Input struct {
-	RepoOwner string
-	RepoName  string
-	PR        int
-	Dismiss   bool
-	Command   string
+	RepoOwner           string
+	RepoName            string
+	Command             string
+	PR                  int
+	Dismiss             bool
+	IgnoreUnknownCommit bool
 }

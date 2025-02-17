@@ -16,7 +16,7 @@ import (
 // It gets pull request reviews and committers via GitHub GraphQL API, and checks if people other than committers approve the PR.
 // If Dismiss is true, it dismisses the approval of committers.
 // If the PR isn't approved by people other than committers, it returns an error.
-func (c *Controller) Run(ctx context.Context, logE *logrus.Entry, input *Input) error {
+func (c *Controller) Run(ctx context.Context, logE *logrus.Entry, input *Input) error { //nolint:cyclop
 	// Get a pull request reviews and committers via GraphQL API
 	pr, err := c.gh.GetPR(ctx, input.RepoOwner, input.RepoName, input.PR)
 	if err != nil {
@@ -43,7 +43,13 @@ func (c *Controller) Run(ctx context.Context, logE *logrus.Entry, input *Input) 
 	for i, commit := range pr.Commits.Nodes {
 		commits[i] = commit.Commit
 	}
-	committers := getCommitters(commits)
+	committers, err := getCommitters(commits)
+	if err != nil {
+		if !input.IgnoreUnknownCommit {
+			return err
+		}
+		logerr.WithError(logE, err).Warn("some commits don't have committer and author")
+	}
 	// Checks if people other than committers approve the PR
 	selfApprovals, ok := check(pr.HeadRefOID, pr.Reviews.Nodes, committers)
 	if input.Dismiss {
@@ -86,12 +92,21 @@ type Approval struct {
 	ID    string
 }
 
-func getCommitters(commits []*github.Commit) map[string]struct{} {
+func getCommitters(commits []*github.Commit) (map[string]struct{}, error) {
 	committers := make(map[string]struct{}, len(commits))
+	failed := false
 	for _, commit := range commits {
-		committers[commit.Login()] = struct{}{}
+		user, err := commit.Login()
+		if err != nil {
+			failed = true
+			continue
+		}
+		committers[user] = struct{}{}
 	}
-	return committers
+	if failed {
+		return committers, errors.New("both commiter and author are null")
+	}
+	return committers, nil
 }
 
 // check checks if committers approve the pull request themselves.

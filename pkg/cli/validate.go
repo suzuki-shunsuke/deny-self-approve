@@ -40,9 +40,10 @@ func (vc *validateCommand) action(c *cli.Context) error {
 	gh.Init(c.Context, os.Getenv("GITHUB_TOKEN"))
 
 	input := &controller.Input{
-		PR:      c.Int("pr"),
-		Command: "validate",
-		Dismiss: c.Bool("dismiss"),
+		PR:                  c.Int("pr"),
+		Command:             "validate",
+		Dismiss:             c.Bool("dismiss"),
+		IgnoreUnknownCommit: c.Bool("ignore-unknown-commit"),
 	}
 
 	if err := setRepo(c.String("repo"), input); err != nil {
