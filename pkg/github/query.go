@@ -127,10 +127,13 @@ type PullRequestCommit struct {
 }
 
 func (c *Commit) Login() (string, error) {
-	if c.Committer.User != nil {
+	if c == nil {
+		return "", errors.New("commit isn't linked to a GitHub User")
+	}
+	if c.Committer != nil && c.Committer.User != nil {
 		return c.Committer.User.Login, nil
 	}
-	if c.Author.User != nil {
+	if c.Author != nil && c.Author.User != nil {
 		return c.Author.User.Login, nil
 	}
 	return "", errors.New("commit isn't linked to a GitHub User")
