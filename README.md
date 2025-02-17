@@ -26,18 +26,19 @@ And it can also validate pull requests before doing something like deployment.
 
 [We provide a GitHub Actions to prevent self-approvals easily.](https://github.com/suzuki-shunsuke/deny-self-approve-action)
 
-## :warning: Commits not tied with GitHub Users
+## :warning: Commits not linking to GitHub Users
 
 deny-self-approve gets commits' users to deny self approvals.
-But if commits aren't tided with GitHub Users, deny-self-approve can't get committers.
+But if commits don't link to GitHub Users, deny-self-approve can't get committers.
 In that case, deny-self-approve fails by default.
 
+[You should configure Git properly](https://docs.github.com/en/pull-requests/committing-changes-to-your-project/troubleshooting-commits/why-are-my-commits-linked-to-the-wrong-user).
 [As a best practice, all commits should be verified](https://docs.github.com/en/authentication/managing-commit-signature-verification).
 
-But if it's difficult, you can ignore these commits by `--ignore-unknown-commit` option.
+But if it's difficult, you can ignore these commits by `--ignore-not-linked-commit` option.
 
 ```sh
-deny-self-approve -ignore-unknown-commit validate # or dismiss
+deny-self-approve --ignore-not-linked-commit validate # or dismiss
 ```
 
-We don't recommend this because attackers can bypass the validation using unknown commits.
+We don't recommend this because this isn't secure.

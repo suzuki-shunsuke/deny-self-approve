@@ -78,8 +78,8 @@ func (r *Runner) Run(ctx context.Context) error {
 				Usage: "The pull request number",
 			},
 			&cli.BoolFlag{
-				Name:  "ignore-unknown-commit",
-				Usage: "Ignore commits whose committer is unknown",
+				Name:  "ignore-not-linked-commit",
+				Usage: "Ignore commits not linked to GitHub Users",
 			},
 		},
 		EnableBashCompletion: true,

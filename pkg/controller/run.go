@@ -45,7 +45,7 @@ func (c *Controller) Run(ctx context.Context, logE *logrus.Entry, input *Input) 
 	}
 	committers, err := getCommitters(commits)
 	if err != nil {
-		if !input.IgnoreUnknownCommit {
+		if !input.IgnoreNotLinkedCommit {
 			return err
 		}
 		logerr.WithError(logE, err).Warn("some commits don't have committer and author")

@@ -34,9 +34,10 @@ func (dc *dismissCommand) action(c *cli.Context) error {
 	gh.Init(c.Context, os.Getenv("GITHUB_TOKEN"))
 
 	input := &controller.Input{
-		PR:      c.Int("pr"),
-		Command: "dismiss",
-		Dismiss: true,
+		PR:                    c.Int("pr"),
+		Command:               "dismiss",
+		Dismiss:               true,
+		IgnoreNotLinkedCommit: c.Bool("ignore-not-linked-commit"),
 	}
 
 	if err := setRepo(c.String("repo"), input); err != nil {
