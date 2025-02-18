@@ -10,7 +10,7 @@ on:
 
 jobs:
   test:
-    timeout-minutes: 30
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -29,6 +29,3 @@ jobs:
       - run: go install ./cmd/deny-self-approve
       - run: deny-self-approve --version
       - run: deny-self-approve --help
-      - run: deny-self-approve dismiss
-        env:
-          GITHUB_TOKEN: ${{github.token}}

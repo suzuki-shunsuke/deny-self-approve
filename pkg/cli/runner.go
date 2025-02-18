@@ -9,26 +9,11 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/afero"
 	"github.com/suzuki-shunsuke/deny-self-approve/pkg/controller"
-	"github.com/suzuki-shunsuke/deny-self-approve/pkg/github"
-	"github.com/suzuki-shunsuke/deny-self-approve/pkg/log"
 	"github.com/suzuki-shunsuke/go-ci-env/v3/cienv"
 	"github.com/suzuki-shunsuke/urfave-cli-help-all/helpall"
 	"github.com/urfave/cli/v2"
 )
-
-type CLI struct {
-	LogLevel string `help:"The log level" enum:"debug,info,warn,error" default:"info"`
-	LogColor string `help:"The log color" enum:"auto,always,never" default:"auto"`
-	Repo     string `help:"The repository full name" short:"r"`
-	PR       int    `help:"The pull request number"`
-	Version  bool   `help:"Show version" short:"v"`
-	Validate struct {
-		Dismiss bool `help:"Dimiss the pull request" short:"d"`
-	} `cmd:"" help:"Validate if anyone who didn't push commits to the pull request approves it"`
-	Dismiss struct{} `cmd:"" help:"Dismiss self-approvals"`
-}
 
 type Runner struct {
 	Stdin   io.Reader
@@ -56,39 +41,13 @@ func (r *Runner) Run(ctx context.Context) error {
 		compiledDate = time.Now()
 	}
 	app := cli.App{
-		Name:     "deny-self-approve",
-		Usage:    "Deny self-approvals on GitHub pull requests",
-		Version:  r.LDFlags.Version + " (" + r.LDFlags.Commit + ")",
-		Compiled: compiledDate,
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:  "log-level",
-				Usage: "log level. One of 'debug', 'info', 'warn', 'error'",
-				Value: "info",
-			},
-			&cli.StringFlag{
-				Name:  "log-color",
-				Usage: "Log color. One of 'auto' (default), 'always', 'never'",
-				Value: "auto",
-			},
-			&cli.StringFlag{
-				Name:    "repo",
-				Usage:   "The repository full name",
-				Aliases: []string{"r"},
-			},
-			&cli.StringFlag{
-				Name:  "pr",
-				Usage: "The pull request number",
-			},
-		},
+		Name:                 "deny-self-approve",
+		Usage:                "Deny self-approvals on GitHub pull requests",
+		Version:              r.LDFlags.Version + " (" + r.LDFlags.Commit + ")",
+		Compiled:             compiledDate,
 		EnableBashCompletion: true,
 		Commands: []*cli.Command{
 			(&validateCommand{
-				stdout: r.Stdout,
-				stderr: r.Stderr,
-				logE:   r.LogE,
-			}).command(),
-			(&dismissCommand{
 				stdout: r.Stdout,
 				stderr: r.Stderr,
 				logE:   r.LogE,
@@ -151,30 +110,4 @@ func getParamFromEnv(input *controller.Input) error {
 	}
 
 	return nil
-}
-
-func commonAction(c *cli.Context, logE *logrus.Entry, cmd string, stdout, stderr io.Writer, dismiss bool) error {
-	log.SetLevel(c.String("log-level"), logE)
-	log.SetColor(c.String("log-color"), logE)
-	gh := &github.Client{}
-	gh.Init(c.Context, os.Getenv("GITHUB_TOKEN"))
-
-	input := &controller.Input{
-		PR:      c.Int("pr"),
-		Command: cmd,
-		Dismiss: dismiss,
-	}
-
-	if err := setRepo(c.String("repo"), input); err != nil {
-		return err
-	}
-
-	// TODO Get a pull request number from a commit hash
-	if err := getParamFromEnv(input); err != nil {
-		return err
-	}
-
-	ctrl := &controller.Controller{}
-	ctrl.Init(afero.NewOsFs(), gh, stdout, stderr)
-	return ctrl.Run(c.Context, logE, input) //nolint:wrapcheck
 }

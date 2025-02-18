@@ -2,8 +2,13 @@ package cli
 
 import (
 	"io"
+	"os"
 
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/afero"
+	"github.com/suzuki-shunsuke/deny-self-approve/pkg/controller"
+	"github.com/suzuki-shunsuke/deny-self-approve/pkg/github"
+	"github.com/suzuki-shunsuke/deny-self-approve/pkg/log"
 	"github.com/urfave/cli/v2"
 )
 
@@ -19,14 +24,49 @@ func (vc *validateCommand) command() *cli.Command {
 		Usage:  "Validate if anyone who didn't push commits to the pull request approves it",
 		Action: vc.action,
 		Flags: []cli.Flag{
-			&cli.BoolFlag{
-				Name:  "dismiss",
-				Usage: "Dimiss self-approvals",
+			&cli.StringFlag{
+				Name:  "log-level",
+				Usage: "log level. One of 'debug', 'info', 'warn', 'error'",
+				Value: "info",
+			},
+			&cli.StringFlag{
+				Name:  "log-color",
+				Usage: "Log color. One of 'auto' (default), 'always', 'never'",
+				Value: "auto",
+			},
+			&cli.StringFlag{
+				Name:    "repo",
+				Usage:   "The repository full name",
+				Aliases: []string{"r"},
+			},
+			&cli.StringFlag{
+				Name:  "pr",
+				Usage: "The pull request number",
 			},
 		},
 	}
 }
 
 func (vc *validateCommand) action(c *cli.Context) error {
-	return commonAction(c, vc.logE, "validate", vc.stdout, vc.stderr, c.Bool("dismiss"))
+	log.SetLevel(c.String("log-level"), vc.logE)
+	log.SetColor(c.String("log-color"), vc.logE)
+	gh := &github.Client{}
+	gh.Init(c.Context, os.Getenv("GITHUB_TOKEN"))
+
+	input := &controller.Input{
+		PR: c.Int("pr"),
+	}
+
+	if err := setRepo(c.String("repo"), input); err != nil {
+		return err
+	}
+
+	// TODO Get a pull request number from a commit hash
+	if err := getParamFromEnv(input); err != nil {
+		return err
+	}
+
+	ctrl := &controller.Controller{}
+	ctrl.Init(afero.NewOsFs(), gh, vc.stdout, vc.stderr)
+	return ctrl.Run(c.Context, vc.logE, input) //nolint:wrapcheck
 }
