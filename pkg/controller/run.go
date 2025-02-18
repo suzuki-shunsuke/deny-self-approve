@@ -94,7 +94,7 @@ func getCommitters(commits []*github.Commit) (map[string]struct{}, error) {
 	for _, commit := range commits {
 		login := commit.Login()
 		if login == "" {
-			return committers, logerr.WithFields(errors.New("commit isn't linked to a GitHub User"), logrus.Fields{
+			return committers, logerr.WithFields(errors.New("commit isn't linked to a GitHub User"), logrus.Fields{ //nolint:wrapcheck
 				"docs": "https://github.com/suzuki-shunsuke/deny-self-approve/tree/main/docs/001.md",
 			})
 		}
