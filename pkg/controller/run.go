@@ -16,7 +16,7 @@ import (
 // It gets pull request reviews and committers via GitHub GraphQL API, and checks if people other than committers approve the PR.
 // If Dismiss is true, it dismisses the approval of committers.
 // If the PR isn't approved by people other than committers, it returns an error.
-func (c *Controller) Run(ctx context.Context, logE *logrus.Entry, input *Input) error {
+func (c *Controller) Run(ctx context.Context, _ *logrus.Entry, input *Input) error {
 	// Get a pull request reviews and committers via GraphQL API
 	pr, err := c.gh.GetPR(ctx, input.RepoOwner, input.RepoName, input.PR)
 	if err != nil {
@@ -45,16 +45,8 @@ func (c *Controller) Run(ctx context.Context, logE *logrus.Entry, input *Input) 
 		return err
 	}
 	// Exclude some reviews
-	reviews := filterReviews(pr.Reviews.Nodes, pr.HeadRefOID)
-	if len(reviews) > 1 {
-		// Allow multiple approvals
-		return nil
-	}
 	// Checks if people other than committers approve the PR
-	if !check(reviews, committers) {
-		return errors.New("pull requests must be approved by people who don't push commits to them")
-	}
-	return nil
+	return validate(filterReviews(pr.Reviews.Nodes, pr.HeadRefOID), committers)
 }
 
 type Result struct {
@@ -105,10 +97,14 @@ func filterReviews(reviews []*github.Review, headRefOID string) []*github.Review
 	return arr
 }
 
-// check checks if committers approve the pull request themselves.
-// This function returns a list of committers doing self-approval and a boolean if others approve the pull request.
-// The second return value is true if others approve the pull request.
-func check(reviews []*github.Review, committers map[string]struct{}) bool {
+var errApproval = errors.New("pull requests must be approved by people who don't push commits to them")
+
+// validate validates if committers approve the pull request themselves.
+func validate(reviews []*github.Review, committers map[string]struct{}) error {
+	if len(reviews) > 1 {
+		// Allow multiple approvals
+		return nil
+	}
 	for _, review := range reviews {
 		// TODO check CODEOWNERS
 		if _, ok := committers[review.Author.Login]; ok {
@@ -116,7 +112,7 @@ func check(reviews []*github.Review, committers map[string]struct{}) bool {
 			continue
 		}
 		// Someone other than committers approved the PR, so this PR is not self-approved.
-		return true
+		return nil
 	}
-	return false
+	return errApproval
 }
