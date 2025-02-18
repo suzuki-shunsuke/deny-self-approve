@@ -22,6 +22,39 @@ func (c *Controller) Run(ctx context.Context, _ *logrus.Entry, input *Input) err
 	if err != nil {
 		return fmt.Errorf("get a pull request: %w", err)
 	}
+	if err := c.output(input, pr); err != nil {
+		return err
+	}
+	reviews := filterReviews(pr.Reviews.Nodes, pr.HeadRefOID)
+
+	if len(reviews) > 1 {
+		// Allow multiple approvals
+		return nil
+	}
+
+	if len(reviews) == 0 {
+		// Approval is required
+		return errApproval
+	}
+
+	committers, err := getCommitters(convertCommits(pr.Commits.Nodes))
+	if err != nil {
+		return err
+	}
+	// Checks if people other than committers approve the PR
+	return validate(reviews, committers)
+}
+
+// convertCommits converts []*PullRequestCommit to []*Commit
+func convertCommits(commits []*github.PullRequestCommit) []*github.Commit {
+	arr := make([]*github.Commit, len(commits))
+	for i, commit := range commits {
+		arr[i] = commit.Commit
+	}
+	return arr
+}
+
+func (c *Controller) output(input *Input, pr *github.PullRequest) error {
 	encoder := json.NewEncoder(c.stdout)
 	encoder.SetIndent("", "  ")
 	if err := encoder.Encode(&Result{
@@ -35,18 +68,7 @@ func (c *Controller) Run(ctx context.Context, _ *logrus.Entry, input *Input) err
 	}); err != nil {
 		return fmt.Errorf("encode the pull request: %w", err)
 	}
-	// Convert []*PullRequestCommit to []*Commit
-	commits := make([]*github.Commit, len(pr.Commits.Nodes))
-	for i, commit := range pr.Commits.Nodes {
-		commits[i] = commit.Commit
-	}
-	committers, err := getCommitters(commits)
-	if err != nil {
-		return err
-	}
-	// Exclude some reviews
-	// Checks if people other than committers approve the PR
-	return validate(filterReviews(pr.Reviews.Nodes, pr.HeadRefOID), committers)
+	return nil
 }
 
 type Result struct {
@@ -101,10 +123,6 @@ var errApproval = errors.New("pull requests must be approved by people who don't
 
 // validate validates if committers approve the pull request themselves.
 func validate(reviews []*github.Review, committers map[string]struct{}) error {
-	if len(reviews) > 1 {
-		// Allow multiple approvals
-		return nil
-	}
 	for _, review := range reviews {
 		// TODO check CODEOWNERS
 		if _, ok := committers[review.Author.Login]; ok {
