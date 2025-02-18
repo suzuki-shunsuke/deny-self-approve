@@ -37,3 +37,16 @@ This tool prevents such a threat.
 ## :warning: Commit not linked to a GitHub User
 
 [Please see the document.](docs/001.md)
+
+## Get a repository and pull request number from CI environment
+
+If you run this tool on your machine, you need to specify parameters `-repo` and `-pr`.
+
+e.g.
+
+```sh
+deny-self-approve validate -r suzuki-shunsuke/deny-self-approve -pr 1
+```
+
+But in some CI platoforms such as GitHub Actions and CircleCI, you don't need to specify them because this tool gets these parameters automatically from environment variables and files.
+This tool uses a library [go-ci-env](https://github.com/suzuki-shunsuke/go-ci-env).
