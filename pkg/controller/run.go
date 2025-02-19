@@ -16,12 +16,45 @@ import (
 // It gets pull request reviews and committers via GitHub GraphQL API, and checks if people other than committers approve the PR.
 // If Dismiss is true, it dismisses the approval of committers.
 // If the PR isn't approved by people other than committers, it returns an error.
-func (c *Controller) Run(ctx context.Context, logE *logrus.Entry, input *Input) error {
+func (c *Controller) Run(ctx context.Context, _ *logrus.Entry, input *Input) error {
 	// Get a pull request reviews and committers via GraphQL API
 	pr, err := c.gh.GetPR(ctx, input.RepoOwner, input.RepoName, input.PR)
 	if err != nil {
 		return fmt.Errorf("get a pull request: %w", err)
 	}
+	if err := c.output(input, pr); err != nil {
+		return err
+	}
+	reviews := filterReviews(pr.Reviews.Nodes, pr.HeadRefOID)
+
+	if len(reviews) > 1 {
+		// Allow multiple approvals
+		return nil
+	}
+
+	if len(reviews) == 0 {
+		// Approval is required
+		return errApproval
+	}
+
+	committers, err := getCommitters(convertCommits(pr.Commits.Nodes))
+	if err != nil {
+		return err
+	}
+	// Checks if people other than committers approve the PR
+	return validate(reviews, committers)
+}
+
+// convertCommits converts []*PullRequestCommit to []*Commit
+func convertCommits(commits []*github.PullRequestCommit) []*github.Commit {
+	arr := make([]*github.Commit, len(commits))
+	for i, commit := range commits {
+		arr[i] = commit.Commit
+	}
+	return arr
+}
+
+func (c *Controller) output(input *Input, pr *github.PullRequest) error {
 	encoder := json.NewEncoder(c.stdout)
 	encoder.SetIndent("", "  ")
 	if err := encoder.Encode(&Result{
@@ -32,48 +65,14 @@ func (c *Controller) Run(ctx context.Context, logE *logrus.Entry, input *Input) 
 			Reviews:    pr.Reviews,
 			Commits:    pr.Commits,
 		},
-		Options: &ResultOptions{
-			Dismiss: input.Dismiss,
-		},
 	}); err != nil {
 		return fmt.Errorf("encode the pull request: %w", err)
-	}
-	// Convert []*PullRequestCommit to []*Commit
-	commits := make([]*github.Commit, len(pr.Commits.Nodes))
-	for i, commit := range pr.Commits.Nodes {
-		commits[i] = commit.Commit
-	}
-	committers, err := getCommitters(commits)
-	if err != nil {
-		return err
-	}
-	// Checks if people other than committers approve the PR
-	selfApprovals, ok := check(pr.HeadRefOID, pr.Reviews.Nodes, committers)
-	if input.Dismiss {
-		// If Dismiss is true, dismiss the approval of committers
-		for _, selfApproval := range selfApprovals {
-			if err := c.gh.Dismiss(ctx, selfApproval.ID); err != nil {
-				logerr.WithError(logE, err).Error("dismiss a self-approval")
-			}
-			logE.WithFields(logrus.Fields{
-				"review_id": selfApproval.ID,
-				"approver":  selfApproval.Login,
-			}).Info("dismiss a self-approval")
-		}
-	}
-	if input.Command == "validate" && !ok {
-		return errors.New("pull requests must be approved by people who don't push commits to them")
 	}
 	return nil
 }
 
 type Result struct {
-	Options     *ResultOptions `json:"options"`
-	PullRequest *PullRequest   `json:"pull_request"`
-}
-
-type ResultOptions struct {
-	Dismiss bool `json:"dismiss"`
+	PullRequest *PullRequest `json:"pull_request"`
 }
 
 type PullRequest struct {
@@ -103,14 +102,9 @@ func getCommitters(commits []*github.Commit) (map[string]struct{}, error) {
 	return committers, nil
 }
 
-// check checks if committers approve the pull request themselves.
-// This function returns a list of committers doing self-approval and a boolean if others approve the pull request.
-// The second return value is true if others approve the pull request.
-func check(headRefOID string, reviews []*github.Review, committers map[string]struct{}) ([]*Approval, bool) {
-	selfApprovals := []*Approval{}
-	nonSelfApproved := false
+func filterReviews(reviews []*github.Review, headRefOID string) []*github.Review {
+	arr := make([]*github.Review, 0, len(reviews))
 	for _, review := range reviews {
-		// TODO check CODEOWNERS
 		if review.State != "APPROVED" || review.Commit.OID != headRefOID {
 			// Ignore reviews other than APPROVED
 			// Ignore reviews for non head commits
@@ -120,17 +114,23 @@ func check(headRefOID string, reviews []*github.Review, committers map[string]st
 			// Ignore approvals from bots
 			continue
 		}
+		arr = append(arr, review)
+	}
+	return arr
+}
+
+var errApproval = errors.New("pull requests must be approved by people who don't push commits to them")
+
+// validate validates if committers approve the pull request themselves.
+func validate(reviews []*github.Review, committers map[string]struct{}) error {
+	for _, review := range reviews {
+		// TODO check CODEOWNERS
 		if _, ok := committers[review.Author.Login]; ok {
 			// self-approve
-			selfApprovals = append(selfApprovals, &Approval{
-				ID:    review.ID,
-				Login: review.Author.Login,
-			})
 			continue
 		}
 		// Someone other than committers approved the PR, so this PR is not self-approved.
-		// TODO dismiss approvals from bots
-		nonSelfApproved = true
+		return nil
 	}
-	return selfApprovals, nonSelfApproved
+	return errApproval
 }
