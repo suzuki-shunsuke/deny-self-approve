@@ -17,7 +17,6 @@ type Controller struct {
 
 type GitHub interface {
 	GetPR(ctx context.Context, owner, repo string, number int) (*github.PullRequest, error)
-	Dismiss(ctx context.Context, reviewID string) error
 }
 
 func (c *Controller) Init(fs afero.Fs, gh GitHub, stdout, stderr io.Writer) {

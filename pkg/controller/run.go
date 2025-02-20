@@ -14,7 +14,6 @@ import (
 
 // Run denys self-approved GitHub Pull Requests.
 // It gets pull request reviews and committers via GitHub GraphQL API, and checks if people other than committers approve the PR.
-// If Dismiss is true, it dismisses the approval of committers.
 // If the PR isn't approved by people other than committers, it returns an error.
 func (c *Controller) Run(ctx context.Context, _ *logrus.Entry, input *Input) error {
 	// Get a pull request reviews and committers via GraphQL API
