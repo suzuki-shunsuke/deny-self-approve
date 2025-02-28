@@ -11,22 +11,17 @@ USAGE:
    deny-self-approve [global options] command [command options]
 
 VERSION:
-   0.2.4 (6bcd843779cadacaf7273fe01e13c8a4cf637c6c)
+   0.3.0 (bd3c1c6dbe5bc8b00f685f2a19feac971740f137)
 
 COMMANDS:
    validate    Validate if anyone who didn't push commits to the pull request approves it
-   dismiss     Dismiss self-approvals
    version     Show version
    completion  Output shell completion script for bash, zsh, or fish
    help, h     Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --log-level value       log level. One of 'debug', 'info', 'warn', 'error' (default: "info")
-   --log-color value       Log color. One of 'auto' (default), 'always', 'never' (default: "auto")
-   --repo value, -r value  The repository full name
-   --pr value              The pull request number
-   --help, -h              show help
-   --version, -v           print the version
+   --help, -h     show help
+   --version, -v  print the version
 ```
 
 ## deny-self-approve validate
@@ -40,22 +35,11 @@ USAGE:
    deny-self-approve validate [command options]
 
 OPTIONS:
-   --dismiss   Dimiss self-approvals (default: false)
-   --help, -h  show help
-```
-
-## deny-self-approve dismiss
-
-```console
-$ deny-self-approve dismiss --help
-NAME:
-   deny-self-approve dismiss - Dismiss self-approvals
-
-USAGE:
-   deny-self-approve dismiss [command options]
-
-OPTIONS:
-   --help, -h  show help
+   --log-level value       log level. One of 'debug', 'info', 'warn', 'error' (default: "info")
+   --log-color value       Log color. One of 'auto' (default), 'always', 'never' (default: "auto")
+   --repo value, -r value  The repository full name
+   --pr value              The pull request number
+   --help, -h              show help
 ```
 
 ## deny-self-approve version
