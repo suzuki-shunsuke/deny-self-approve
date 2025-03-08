@@ -24,7 +24,7 @@ jobs:
               - .github/workflows/workflow_call_renovate-config-validator.yaml
 
   renovate-config-validator:
-    uses: ./.github/workflows/wc-renovate-config-validator.yaml
+    uses: ./.github/workflows/workflow_call_renovate-config-validator.yaml
     needs: path-filter
     if: needs.path-filter.outputs.renovate-config-validator == 'true'
     permissions:
