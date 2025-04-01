@@ -9,7 +9,7 @@ import (
 	"github.com/suzuki-shunsuke/deny-self-approve/pkg/controller"
 	"github.com/suzuki-shunsuke/deny-self-approve/pkg/github"
 	"github.com/suzuki-shunsuke/deny-self-approve/pkg/log"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 type validateCommand struct {
