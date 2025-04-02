@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"io"
 	"os"
 
@@ -9,7 +10,7 @@ import (
 	"github.com/suzuki-shunsuke/deny-self-approve/pkg/controller"
 	"github.com/suzuki-shunsuke/deny-self-approve/pkg/github"
 	"github.com/suzuki-shunsuke/deny-self-approve/pkg/log"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 type validateCommand struct {
@@ -47,14 +48,14 @@ func (vc *validateCommand) command() *cli.Command {
 	}
 }
 
-func (vc *validateCommand) action(c *cli.Context) error {
+func (vc *validateCommand) action(ctx context.Context, c *cli.Command) error {
 	log.SetLevel(c.String("log-level"), vc.logE)
 	log.SetColor(c.String("log-color"), vc.logE)
 	gh := &github.Client{}
-	gh.Init(c.Context, os.Getenv("GITHUB_TOKEN"))
+	gh.Init(ctx, os.Getenv("GITHUB_TOKEN"))
 
 	input := &controller.Input{
-		PR: c.Int("pr"),
+		PR: int(c.Int("pr")),
 	}
 
 	if err := setRepo(c.String("repo"), input); err != nil {
@@ -68,5 +69,5 @@ func (vc *validateCommand) action(c *cli.Context) error {
 
 	ctrl := &controller.Controller{}
 	ctrl.Init(afero.NewOsFs(), gh, vc.stdout, vc.stderr)
-	return ctrl.Run(c.Context, vc.logE, input) //nolint:wrapcheck
+	return ctrl.Run(ctx, vc.logE, input) //nolint:wrapcheck
 }
