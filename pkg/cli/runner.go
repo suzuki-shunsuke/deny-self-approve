@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/suzuki-shunsuke/deny-self-approve/pkg/controller"
@@ -36,15 +35,10 @@ type LDFlags struct {
 // - GITHUB_TOKEN: GitHub Access token
 // https://github.com/suzuki-shunsuke/go-ci-env/tree/main/cienv
 func (r *Runner) Run(ctx context.Context) error {
-	compiledDate, err := time.Parse(time.RFC3339, r.LDFlags.Date)
-	if err != nil {
-		compiledDate = time.Now()
-	}
-	app := cli.Command{
-		Name:                 "deny-self-approve",
-		Usage:                "Deny self-approvals on GitHub pull requests",
-		Version:              r.LDFlags.Version + " (" + r.LDFlags.Commit + ")",
-		Compiled:             compiledDate,
+	return helpall.With(&cli.Command{ //nolint:wrapcheck
+		Name:                  "deny-self-approve",
+		Usage:                 "Deny self-approvals on GitHub pull requests",
+		Version:               r.LDFlags.Version + " (" + r.LDFlags.Commit + ")",
 		EnableShellCompletion: true,
 		Commands: []*cli.Command{
 			(&validateCommand{
@@ -61,10 +55,8 @@ func (r *Runner) Run(ctx context.Context) error {
 				logE:   r.LogE,
 				stdout: r.Stdout,
 			}).command(),
-			helpall.New(nil),
 		},
-	}
-	return app.Run(ctx, os.Args) //nolint:wrapcheck
+	}, nil).Run(ctx, os.Args)
 }
 
 func setRepo(repo string, input *controller.Input) error {
