@@ -11,7 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/suzuki-shunsuke/deny-self-approve/pkg/controller"
 	"github.com/suzuki-shunsuke/go-ci-env/v3/cienv"
-	"github.com/suzuki-shunsuke/urfave-cli-help-all/helpall"
+	"github.com/suzuki-shunsuke/urfave-cli-v3-help-all/helpall"
 	"github.com/urfave/cli/v3"
 )
 
@@ -40,12 +40,12 @@ func (r *Runner) Run(ctx context.Context) error {
 	if err != nil {
 		compiledDate = time.Now()
 	}
-	app := cli.App{
+	app := cli.Command{
 		Name:                 "deny-self-approve",
 		Usage:                "Deny self-approvals on GitHub pull requests",
 		Version:              r.LDFlags.Version + " (" + r.LDFlags.Commit + ")",
 		Compiled:             compiledDate,
-		EnableBashCompletion: true,
+		EnableShellCompletion: true,
 		Commands: []*cli.Command{
 			(&validateCommand{
 				stdout: r.Stdout,
@@ -64,7 +64,7 @@ func (r *Runner) Run(ctx context.Context) error {
 			helpall.New(nil),
 		},
 	}
-	return app.RunContext(ctx, os.Args) //nolint:wrapcheck
+	return app.Run(ctx, os.Args) //nolint:wrapcheck
 }
 
 func setRepo(repo string, input *controller.Input) error {

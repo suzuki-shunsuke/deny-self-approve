@@ -47,7 +47,7 @@ func (vc *validateCommand) command() *cli.Command {
 	}
 }
 
-func (vc *validateCommand) action(c *cli.Context) error {
+func (vc *validateCommand) action(ctx context.Context, c *cli.Command) error {
 	log.SetLevel(c.String("log-level"), vc.logE)
 	log.SetColor(c.String("log-color"), vc.logE)
 	gh := &github.Client{}
