@@ -10,7 +10,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/suzuki-shunsuke/deny-self-approve/pkg/controller"
 	"github.com/suzuki-shunsuke/go-ci-env/v3/cienv"
-	"github.com/suzuki-shunsuke/urfave-cli-v3-help-all/helpall"
+	"github.com/suzuki-shunsuke/urfave-cli-v3-util/helpall"
+	"github.com/suzuki-shunsuke/urfave-cli-v3-util/vcmd"
 	"github.com/urfave/cli/v3"
 )
 
@@ -46,15 +47,15 @@ func (r *Runner) Run(ctx context.Context) error {
 				stderr: r.Stderr,
 				logE:   r.LogE,
 			}).command(),
-			(&versionCommand{
-				stdout:  r.Stdout,
-				version: r.LDFlags.Version,
-				commit:  r.LDFlags.Commit,
-			}).command(),
 			(&completionCommand{
 				logE:   r.LogE,
 				stdout: r.Stdout,
 			}).command(),
+			vcmd.New(&vcmd.Command{
+				Name:    "deny-self-approve",
+				Version: r.LDFlags.Version,
+				SHA:     r.LDFlags.Commit,
+			}),
 		},
 	}, nil).Run(ctx, os.Args)
 }
