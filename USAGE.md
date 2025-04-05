@@ -8,15 +8,15 @@ NAME:
    deny-self-approve - Deny self-approvals on GitHub pull requests
 
 USAGE:
-   deny-self-approve [global options] command [command options]
+   deny-self-approve [global options] [command [command options]]
 
 VERSION:
-   0.3.0 (bd3c1c6dbe5bc8b00f685f2a19feac971740f137)
+   0.3.1 (7fd8b4821672c941dc38913259066183f52ca8df)
 
 COMMANDS:
    validate    Validate if anyone who didn't push commits to the pull request approves it
-   version     Show version
    completion  Output shell completion script for bash, zsh, or fish
+   version     Show version
    help, h     Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
@@ -32,29 +32,14 @@ NAME:
    deny-self-approve validate - Validate if anyone who didn't push commits to the pull request approves it
 
 USAGE:
-   deny-self-approve validate [command options]
+   deny-self-approve validate
 
 OPTIONS:
-   --log-level value       log level. One of 'debug', 'info', 'warn', 'error' (default: "info")
-   --log-color value       Log color. One of 'auto' (default), 'always', 'never' (default: "auto")
-   --repo value, -r value  The repository full name
-   --pr value              The pull request number
-   --help, -h              show help
-```
-
-## deny-self-approve version
-
-```console
-$ deny-self-approve version --help
-NAME:
-   deny-self-approve version - Show version
-
-USAGE:
-   deny-self-approve version [command options]
-
-OPTIONS:
-   --json      (default: false)
-   --help, -h  show help
+   --log-level string        log level. One of 'debug', 'info', 'warn', 'error' (default: "info")
+   --log-color string        Log color. One of 'auto' (default), 'always', 'never' (default: "auto")
+   --repo string, -r string  The repository full name
+   --pr string               The pull request number
+   --help, -h                show help
 ```
 
 ## deny-self-approve completion
@@ -65,7 +50,7 @@ NAME:
    deny-self-approve completion - Output shell completion script for bash, zsh, or fish
 
 USAGE:
-   deny-self-approve completion command [command options]
+   deny-self-approve completion [command [command options]] 
 
 DESCRIPTION:
    Output shell completion script for bash, zsh, or fish.
@@ -85,46 +70,68 @@ DESCRIPTION:
 
    deny-self-approve completion fish > ~/.config/fish/completions/deny-self-approve.fish
 
-```
-
-### deny-self-approve completion bash
-
-```console
-$ deny-self-approve completion bash --help
-NAME:
-    - Output shell completion script for bash
-
-USAGE:
-    [command options]
+COMMANDS:
+   bash  Output shell completion script for bash
+   zsh   Output shell completion script for zsh
+   fish  Output shell completion script for fish
 
 OPTIONS:
    --help, -h  show help
 ```
 
-### deny-self-approve completion zsh
+### completion bash
 
 ```console
-$ deny-self-approve completion zsh --help
+$ completion bash --help
 NAME:
-    - Output shell completion script for zsh
+   deny-self-approve completion bash - Output shell completion script for bash
 
 USAGE:
-    [command options]
+   deny-self-approve completion bash
 
 OPTIONS:
    --help, -h  show help
 ```
 
-### deny-self-approve completion fish
+### completion zsh
 
 ```console
-$ deny-self-approve completion fish --help
+$ completion zsh --help
 NAME:
-    - Output shell completion script for fish
+   deny-self-approve completion zsh - Output shell completion script for zsh
 
 USAGE:
-    [command options]
+   deny-self-approve completion zsh
 
 OPTIONS:
+   --help, -h  show help
+```
+
+### completion fish
+
+```console
+$ completion fish --help
+NAME:
+   deny-self-approve completion fish - Output shell completion script for fish
+
+USAGE:
+   deny-self-approve completion fish
+
+OPTIONS:
+   --help, -h  show help
+```
+
+## deny-self-approve version
+
+```console
+$ deny-self-approve version --help
+NAME:
+   deny-self-approve version - Show version
+
+USAGE:
+   deny-self-approve version
+
+OPTIONS:
+   --json, -j  Output version in JSON format (default: false)
    --help, -h  show help
 ```
