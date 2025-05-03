@@ -55,7 +55,7 @@ func (vc *validateCommand) action(ctx context.Context, c *cli.Command) error {
 	gh.Init(ctx, os.Getenv("GITHUB_TOKEN"))
 
 	input := &controller.Input{
-		PR: int(c.Int("pr")),
+		PR: c.Int("pr"),
 	}
 
 	if err := setRepo(c.String("repo"), input); err != nil {
