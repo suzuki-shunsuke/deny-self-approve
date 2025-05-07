@@ -36,10 +36,10 @@ type LDFlags struct {
 // - GITHUB_TOKEN: GitHub Access token
 // https://github.com/suzuki-shunsuke/go-ci-env/tree/main/cienv
 func (r *Runner) Run(ctx context.Context) error {
-	return helpall.With(&cli.Command{ //nolint:wrapcheck
+	return helpall.With(vcmd.With(&cli.Command{ //nolint:wrapcheck
 		Name:                  "deny-self-approve",
 		Usage:                 "Deny self-approvals on GitHub pull requests",
-		Version:               r.LDFlags.Version + " (" + r.LDFlags.Commit + ")",
+		Version:               r.LDFlags.Version,
 		EnableShellCompletion: true,
 		Commands: []*cli.Command{
 			(&validateCommand{
@@ -51,13 +51,8 @@ func (r *Runner) Run(ctx context.Context) error {
 				logE:   r.LogE,
 				stdout: r.Stdout,
 			}).command(),
-			vcmd.New(&vcmd.Command{
-				Name:    "deny-self-approve",
-				Version: r.LDFlags.Version,
-				SHA:     r.LDFlags.Commit,
-			}),
 		},
-	}, nil).Run(ctx, os.Args)
+	}, r.LDFlags.Commit), nil).Run(ctx, os.Args)
 }
 
 func setRepo(repo string, input *controller.Input) error {
