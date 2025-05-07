@@ -7,8 +7,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/suzuki-shunsuke/deny-self-approve/pkg/cli"
-	"github.com/suzuki-shunsuke/deny-self-approve/pkg/log"
 	"github.com/suzuki-shunsuke/logrus-error/logerr"
+	"github.com/suzuki-shunsuke/urfave-cli-v3-util/log"
 )
 
 var (
@@ -18,7 +18,7 @@ var (
 )
 
 func main() {
-	logE := log.New(version)
+	logE := log.New("deny-self-approve", version)
 	if err := core(logE); err != nil {
 		logerr.WithError(logE, err).Fatal("deny-self-approve failed")
 	}

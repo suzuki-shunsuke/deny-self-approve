@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 
@@ -9,7 +10,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/suzuki-shunsuke/deny-self-approve/pkg/controller"
 	"github.com/suzuki-shunsuke/deny-self-approve/pkg/github"
-	"github.com/suzuki-shunsuke/deny-self-approve/pkg/log"
+	"github.com/suzuki-shunsuke/urfave-cli-v3-util/log"
 	"github.com/urfave/cli/v3"
 )
 
@@ -49,8 +50,9 @@ func (vc *validateCommand) command() *cli.Command {
 }
 
 func (vc *validateCommand) action(ctx context.Context, c *cli.Command) error {
-	log.SetLevel(c.String("log-level"), vc.logE)
-	log.SetColor(c.String("log-color"), vc.logE)
+	if err := log.Set(vc.logE, c.String("log-level"), c.String("log-color")); err != nil {
+		return fmt.Errorf("set up a logger: %w", err)
+	}
 	gh := &github.Client{}
 	gh.Init(ctx, os.Getenv("GITHUB_TOKEN"))
 
