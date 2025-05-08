@@ -9,6 +9,7 @@ import (
 	"github.com/suzuki-shunsuke/deny-self-approve/pkg/cli"
 	"github.com/suzuki-shunsuke/logrus-error/logerr"
 	"github.com/suzuki-shunsuke/urfave-cli-v3-util/log"
+	"github.com/suzuki-shunsuke/urfave-cli-v3-util/urfave"
 )
 
 var (
@@ -31,7 +32,7 @@ func core(logE *logrus.Entry) error {
 		Stdin:  os.Stdin,
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,
-		LDFlags: &cli.LDFlags{
+		LDFlags: &urfave.LDFlags{
 			Version: version,
 			Commit:  commit,
 			Date:    date,
