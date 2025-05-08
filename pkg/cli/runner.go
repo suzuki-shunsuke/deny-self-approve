@@ -10,8 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/suzuki-shunsuke/deny-self-approve/pkg/controller"
 	"github.com/suzuki-shunsuke/go-ci-env/v3/cienv"
-	"github.com/suzuki-shunsuke/urfave-cli-v3-util/helpall"
-	"github.com/suzuki-shunsuke/urfave-cli-v3-util/vcmd"
+	"github.com/suzuki-shunsuke/urfave-cli-v3-util/urfave"
 	"github.com/urfave/cli/v3"
 )
 
@@ -19,14 +18,8 @@ type Runner struct {
 	Stdin   io.Reader
 	Stdout  io.Writer
 	Stderr  io.Writer
-	LDFlags *LDFlags
+	LDFlags *urfave.LDFlags
 	LogE    *logrus.Entry
-}
-
-type LDFlags struct {
-	Version string
-	Commit  string
-	Date    string
 }
 
 // Run is the entrypoint of the CLI.
@@ -36,23 +29,17 @@ type LDFlags struct {
 // - GITHUB_TOKEN: GitHub Access token
 // https://github.com/suzuki-shunsuke/go-ci-env/tree/main/cienv
 func (r *Runner) Run(ctx context.Context) error {
-	return helpall.With(vcmd.With(&cli.Command{ //nolint:wrapcheck
-		Name:                  "deny-self-approve",
-		Usage:                 "Deny self-approvals on GitHub pull requests",
-		Version:               r.LDFlags.Version,
-		EnableShellCompletion: true,
+	return urfave.Command(r.LogE, r.LDFlags, &cli.Command{ //nolint:wrapcheck
+		Name:  "deny-self-approve",
+		Usage: "Deny self-approvals on GitHub pull requests",
 		Commands: []*cli.Command{
 			(&validateCommand{
 				stdout: r.Stdout,
 				stderr: r.Stderr,
 				logE:   r.LogE,
 			}).command(),
-			(&completionCommand{
-				logE:   r.LogE,
-				stdout: r.Stdout,
-			}).command(),
 		},
-	}, r.LDFlags.Commit), nil).Run(ctx, os.Args)
+	}).Run(ctx, os.Args)
 }
 
 func setRepo(repo string, input *controller.Input) error {
