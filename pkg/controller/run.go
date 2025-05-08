@@ -23,6 +23,10 @@ func (c *Controller) Run(ctx context.Context, _ *logrus.Entry, input *Input) err
 	if err := c.output(input, pr); err != nil {
 		return err
 	}
+	return validatePR(input, pr)
+}
+
+func validatePR(input *Input, pr *github.PullRequest) error {
 	reviews := ignoreUnreliableReviews(filterReviews(pr.Reviews.Nodes, pr.HeadRefOID), input.UnreliableMachineUsers)
 
 	if len(reviews) > 1 {
