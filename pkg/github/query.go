@@ -132,18 +132,29 @@ type Commit struct {
 	Author    *Committer `json:"author"`
 }
 
-func (c *Commit) Login() string {
+func (c *Commit) User() *User {
 	if c == nil {
-		return ""
+		return nil
 	}
-	if login := c.Committer.Login(); login != "" {
-		return login
+	if user := c.Committer.GetUser(); user != nil {
+		return user
 	}
-	return c.Author.Login()
+	return c.Author.GetUser()
+}
+
+func (c *Commit) Login() string {
+	return c.User().GetLogin()
 }
 
 type Committer struct {
 	User *User `json:"user"`
+}
+
+func (c *Committer) GetUser() *User {
+	if c == nil {
+		return nil
+	}
+	return c.User
 }
 
 func (c *Committer) Login() string {

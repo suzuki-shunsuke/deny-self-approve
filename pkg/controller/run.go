@@ -51,12 +51,28 @@ func (c *Controller) Run(ctx context.Context, _ *logrus.Entry, input *Input) err
 }
 
 func checkIfTwoApprovalsRequired(pr *github.PullRequest, input *Input) bool {
-	if pr.Author.IsApp() {
+	if checkIfUserRequiresTwoApprovals(pr.Author, input) {
+		return true
+	}
+	// If the pull request has commits from unreliable apps or machine users, require two approvals
+	for _, commit := range pr.Commits.Nodes {
+		user := commit.Commit.User()
+		if checkIfUserRequiresTwoApprovals(user, input) {
+			return true
+		}
+	}
+	return false
+}
+
+// checkIfUserRequiresTwoApprovals checks if the user requires two approvals.
+// It returns true if the user is an unreliable app or machine user.
+func checkIfUserRequiresTwoApprovals(user *github.User, input *Input) bool {
+	if user.IsApp() {
 		// Require two approvals for PRs created by reliable apps, excluding trusted apps
-		return !pr.Author.Reliable(input.ReliableApps)
+		return !user.Reliable(input.ReliableApps)
 	}
 	// Require two approvals for PRs created by unreliable machine users
-	_, ok := input.UnreliableMachineUsers[pr.Author.Login]
+	_, ok := input.UnreliableMachineUsers[user.Login]
 	return ok
 }
 
