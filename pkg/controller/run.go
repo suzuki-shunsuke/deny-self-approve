@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/sirupsen/logrus"
 	"github.com/suzuki-shunsuke/deny-self-approve/pkg/github"
@@ -24,7 +23,7 @@ func (c *Controller) Run(ctx context.Context, _ *logrus.Entry, input *Input) err
 	if err := c.output(input, pr); err != nil {
 		return err
 	}
-	reviews := filterReviews(pr.Reviews.Nodes, pr.HeadRefOID)
+	reviews := ignoreUnreliableReviews(filterReviews(pr.Reviews.Nodes, pr.HeadRefOID), input.UnreliableMachineUsers)
 
 	if len(reviews) > 1 {
 		// Allow multiple approvals
@@ -36,12 +35,29 @@ func (c *Controller) Run(ctx context.Context, _ *logrus.Entry, input *Input) err
 		return errApproval
 	}
 
+	requiredTwoApprovals := checkIfTwoApprovalsRequired(pr, input)
+	if requiredTwoApprovals {
+		if len(reviews) == 1 {
+			return errTwoApproval
+		}
+	}
+
 	committers, err := getCommitters(convertCommits(pr.Commits.Nodes))
 	if err != nil {
 		return err
 	}
 	// Checks if people other than committers approve the PR
-	return validate(reviews, committers)
+	return validate(reviews, committers, requiredTwoApprovals)
+}
+
+func checkIfTwoApprovalsRequired(pr *github.PullRequest, input *Input) bool {
+	if pr.Author.IsApp() {
+		// Require two approvals for PRs created by reliable apps, excluding trusted apps
+		return !pr.Author.Reliable(input.ReliableApps)
+	}
+	// Require two approvals for PRs created by unreliable machine users
+	_, ok := input.UnreliableMachineUsers[pr.Author.Login]
+	return ok
 }
 
 // convertCommits converts []*PullRequestCommit to []*Commit
@@ -109,7 +125,7 @@ func filterReviews(reviews []*github.Review, headRefOID string) []*github.Review
 			// Ignore reviews for non head commits
 			continue
 		}
-		if strings.HasPrefix(review.Author.ResourcePath, "/apps/") || strings.HasSuffix(review.Author.Login, "[bot]") {
+		if review.Author.IsApp() {
 			// Ignore approvals from bots
 			continue
 		}
@@ -118,18 +134,40 @@ func filterReviews(reviews []*github.Review, headRefOID string) []*github.Review
 	return arr
 }
 
-var errApproval = errors.New("pull requests must be approved by people who don't push commits to them")
+func ignoreUnreliableReviews(reviews []*github.Review, unreliableUsers map[string]struct{}) []*github.Review {
+	arr := make([]*github.Review, 0, len(reviews))
+	for _, review := range reviews {
+		if _, ok := unreliableUsers[review.Author.Login]; ok {
+			// Ignore approvals from unreliable users
+			continue
+		}
+		arr = append(arr, review)
+	}
+	return arr
+}
+
+var (
+	errApproval    = errors.New("pull requests must be approved by people who don't push commits to them")
+	errTwoApproval = errors.New("pull requests created by unreliable apps or machine users must be approved by two people")
+)
 
 // validate validates if committers approve the pull request themselves.
-func validate(reviews []*github.Review, committers map[string]struct{}) error {
+func validate(reviews []*github.Review, committers map[string]struct{}, requiredTwoApprovals bool) error {
+	oneApproval := false
 	for _, review := range reviews {
 		// TODO check CODEOWNERS
 		if _, ok := committers[review.Author.Login]; ok {
 			// self-approve
 			continue
 		}
-		// Someone other than committers approved the PR, so this PR is not self-approved.
-		return nil
+		if !requiredTwoApprovals || oneApproval {
+			// Someone other than committers approved the PR, so this PR is not self-approved.
+			return nil
+		}
+		oneApproval = true
+	}
+	if oneApproval {
+		return errTwoApproval
 	}
 	return errApproval
 }
