@@ -27,9 +27,9 @@ func (c *Controller) Init(fs afero.Fs, gh GitHub, stdout, stderr io.Writer) {
 }
 
 type Input struct {
-	RepoOwner              string
-	RepoName               string
-	PR                     int
-	ReliableApps           map[string]struct{}
-	UnreliableMachineUsers map[string]struct{}
+	RepoOwner             string
+	RepoName              string
+	PR                    int
+	TrustedApps           map[string]struct{}
+	UntrustedMachineUsers map[string]struct{}
 }

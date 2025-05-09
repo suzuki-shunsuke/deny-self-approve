@@ -107,7 +107,6 @@ type Reviews struct {
 }
 
 type Review struct {
-	ID     string        `json:"id"`
 	Author *User         `json:"author"`
 	State  string        `json:"state"`
 	Commit *ReviewCommit `json:"commit"`
@@ -146,6 +145,10 @@ func (c *Commit) Login() string {
 	return c.User().GetLogin()
 }
 
+func (c *Commit) Linked() bool {
+	return c.Login() != ""
+}
+
 type Committer struct {
 	User *User `json:"user"`
 }
@@ -180,7 +183,7 @@ func (u *User) IsApp() bool {
 	return strings.HasPrefix(u.ResourcePath, "/apps/") || strings.HasSuffix(u.Login, "[bot]")
 }
 
-func (u *User) Reliable(reliableBots map[string]struct{}) bool {
+func (u *User) Trusted(reliableBots map[string]struct{}) bool {
 	_, ok := reliableBots[u.Login]
 	return ok
 }

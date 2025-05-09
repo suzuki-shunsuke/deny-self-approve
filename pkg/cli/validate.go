@@ -47,12 +47,12 @@ func (vc *validateCommand) command() *cli.Command {
 				Usage: "The pull request number",
 			},
 			&cli.StringFlag{
-				Name:  "reliable-apps",
-				Usage: "Reliable apps. Comma-separated list of GitHub login names",
+				Name:  "trusted-apps",
+				Usage: "Trusted apps. Comma-separated list of GitHub login names",
 			},
 			&cli.StringFlag{
-				Name:  "unreliable-machine-users",
-				Usage: "Unreliable machine users. Comma-separated list of GitHub login names",
+				Name:  "untrusted-machine-users",
+				Usage: "Untrusted machine users. Comma-separated list of GitHub login names",
 			},
 		},
 	}
@@ -78,9 +78,9 @@ func (vc *validateCommand) action(ctx context.Context, c *cli.Command) error {
 	gh.Init(ctx, os.Getenv("GITHUB_TOKEN"))
 
 	input := &controller.Input{
-		PR:                     c.Int("pr"),
-		ReliableApps:           vc.toMap(c.String("reliable-apps")),
-		UnreliableMachineUsers: vc.toMap(c.String("unreliable-machine-users")),
+		PR:                    c.Int("pr"),
+		TrustedApps:           vc.toMap(c.String("trusted-apps")),
+		UntrustedMachineUsers: vc.toMap(c.String("untrusted-machine-users")),
 	}
 
 	if err := setRepo(c.String("repo"), input); err != nil {
