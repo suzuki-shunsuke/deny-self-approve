@@ -42,6 +42,12 @@ In the following cases, **two or more approvals** are required:
 - If there are commits without a linked GitHub user.
   - This may indicate an attempt to mask the identity of the committer and self-approve.
 
+## Enforce Commit Signing by Branch Rulesets
+
+You should enforce commit signing by Branch Rulesets.
+Otherwise, malicious people can impersonate to other users and create commits.
+deny-self-approve doesn't verify commit signing because you can do it using Branch Rulesets.
+
 ## Trusted Apps and untrusted users
 
 With the deny-self-approve option, you can specify lists of trusted GitHub Apps and untrusted machine users.
