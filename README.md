@@ -10,8 +10,6 @@ This action helps close those loopholes.
 
 When developing as a team, it's common to require that pull requests be reviewed by someone other than the author.
 Code reviews help improve code quality, facilitate knowledge sharing among team members, and prevent any single person from making unauthorized changes without approval.
-While you can enforce reviews using Branch Rulesets, there are still a few loopholes that allow pull requests to be merged without proper review.
-This action was developed to close those loopholes.
 
 First, you should enable the following branch ruleset on the default branch.
 
