@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
@@ -45,8 +46,28 @@ func (vc *validateCommand) command() *cli.Command {
 				Name:  "pr",
 				Usage: "The pull request number",
 			},
+			&cli.StringFlag{
+				Name:  "trusted-apps",
+				Usage: "Trusted apps. Comma-separated list of GitHub login names",
+			},
+			&cli.StringFlag{
+				Name:  "untrusted-machine-users",
+				Usage: "Untrusted machine users. Comma-separated list of GitHub login names",
+			},
 		},
 	}
+}
+
+func (vc *validateCommand) toMap(s string) map[string]struct{} {
+	a := strings.Split(s, ",")
+	m := make(map[string]struct{}, len(a))
+	for _, v := range a {
+		if v == "" {
+			continue
+		}
+		m[v] = struct{}{}
+	}
+	return m
 }
 
 func (vc *validateCommand) action(ctx context.Context, c *cli.Command) error {
@@ -57,7 +78,9 @@ func (vc *validateCommand) action(ctx context.Context, c *cli.Command) error {
 	gh.Init(ctx, os.Getenv("GITHUB_TOKEN"))
 
 	input := &controller.Input{
-		PR: c.Int("pr"),
+		PR:                    c.Int("pr"),
+		TrustedApps:           vc.toMap(c.String("trusted-apps")),
+		UntrustedMachineUsers: vc.toMap(c.String("untrusted-machine-users")),
 	}
 
 	if err := setRepo(c.String("repo"), input); err != nil {

@@ -1,5 +1,7 @@
 package github
 
+import "strings"
+
 /*
 query($owner: String!, $repo: String!, $pr: Int!) {
   repository(owner: $owner, name: $repo) {
@@ -92,6 +94,7 @@ type ReviewsPullRequest struct {
 }
 
 type PullRequest struct {
+	Author     *User    `json:"author"`
 	HeadRefOID string   `json:"headRefOid"`
 	Reviews    *Reviews `json:"reviews" graphql:"reviews(first:30)"`
 	Commits    *Commits `json:"commits" graphql:"commits(first:30)"`
@@ -104,8 +107,7 @@ type Reviews struct {
 }
 
 type Review struct {
-	ID     string        `json:"id"`
-	Author *Reviewer     `json:"author"`
+	Author *User         `json:"author"`
 	State  string        `json:"state"`
 	Commit *ReviewCommit `json:"commit"`
 }
@@ -129,18 +131,33 @@ type Commit struct {
 	Author    *Committer `json:"author"`
 }
 
-func (c *Commit) Login() string {
+func (c *Commit) User() *User {
 	if c == nil {
-		return ""
+		return nil
 	}
-	if login := c.Committer.Login(); login != "" {
-		return login
+	if user := c.Committer.GetUser(); user != nil {
+		return user
 	}
-	return c.Author.Login()
+	return c.Author.GetUser()
+}
+
+func (c *Commit) Login() string {
+	return c.User().GetLogin()
+}
+
+func (c *Commit) Linked() bool {
+	return c.Login() != ""
 }
 
 type Committer struct {
 	User *User `json:"user"`
+}
+
+func (c *Committer) GetUser() *User {
+	if c == nil {
+		return nil
+	}
+	return c.User
 }
 
 func (c *Committer) Login() string {
@@ -151,7 +168,8 @@ func (c *Committer) Login() string {
 }
 
 type User struct {
-	Login string `json:"login"`
+	Login        string `json:"login"`
+	ResourcePath string `json:"resourcePath"`
 }
 
 func (u *User) GetLogin() string {
@@ -161,7 +179,11 @@ func (u *User) GetLogin() string {
 	return u.Login
 }
 
-type Reviewer struct {
-	Login        string `json:"login"`
-	ResourcePath string `json:"resourcePath"`
+func (u *User) IsApp() bool {
+	return strings.HasPrefix(u.ResourcePath, "/apps/") || strings.HasSuffix(u.Login, "[bot]")
+}
+
+func (u *User) Trusted(reliableBots map[string]struct{}) bool {
+	_, ok := reliableBots[u.Login]
+	return ok
 }
