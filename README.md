@@ -4,6 +4,14 @@
 
 `deny-self-approve` is a CLI tool designed to validate self-approved GitHub Pull Requests.
 
+## :warning: Deprecated. Please use [validate-pr-review-action](https://github.com/suzuki-shunsuke/validate-pr-review-action) :warning:
+
+validate-pr-review-action is a successor of deny-self-approve.
+
+https://github.com/suzuki-shunsuke/validate-pr-review-action
+
+---
+
 ```sh
 deny-self-approve validate -r <repository full name> -pr <pr number>
 ```
